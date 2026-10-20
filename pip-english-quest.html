@@ -1,0 +1,1199 @@
+<title>Pip English Quest</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: sticky HUD on top, one screen at a time in the middle, tab bar at the bottom on phones and inline on wide screens. Look: sticker-style cards with hard drop shadows. */
+:root{
+  --bg:#E9F1FB; --card:#FFFFFF; --fg:#13213C; --muted:#52627F;
+  --edge:#13213C; --drop:#13213C;
+  --blue:#2F6BFF; --blue-soft:#DCE8FF; --on-blue:#FFFFFF;
+  --yellow:#FFC83D; --yellow-soft:#FFF0BE; --on-yellow:#13213C;
+  --red:#E8432F; --red-soft:#FFE0DB;
+  --green:#12A163; --green-soft:#D2F3E3;
+  --plum:#7B45F0; --plum-soft:#EADDFF;
+  --f-display:'Fredoka',ui-rounded,'Segoe UI',system-ui,sans-serif;
+  --f-body:'Atkinson Hyperlegible','Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1729; --card:#17233D; --fg:#EAF0FF; --muted:#9DB0D3;
+  --edge:#3A4F7E; --drop:#050A16;
+  --blue:#4A7BFF; --blue-soft:#1E3260;
+  --yellow:#FFC83D; --yellow-soft:#3A3216;
+  --red:#FF7569; --red-soft:#43211F;
+  --green:#3DD598; --green-soft:#12382B;
+  --plum:#A67BFF; --plum-soft:#2E2257; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1729; --card:#17233D; --fg:#EAF0FF; --muted:#9DB0D3;
+  --edge:#3A4F7E; --drop:#050A16;
+  --blue:#4A7BFF; --blue-soft:#1E3260;
+  --yellow:#FFC83D; --yellow-soft:#3A3216;
+  --red:#FF7569; --red-soft:#43211F;
+  --green:#3DD598; --green-soft:#12382B;
+  --plum:#A67BFF; --plum-soft:#2E2257; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.5;padding-inline:16px;padding-block:0 96px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance;font-weight:600}
+h1{font-size:clamp(1.9rem,5vw,2.7rem)} h2{font-size:1.5rem} h3{font-size:1.15rem}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--plum);outline-offset:3px;border-radius:8px}
+.num{font-family:var(--f-display);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.wrap{max-width:1040px;margin-inline:auto}
+
+/* HUD */
+.hud{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding-block:12px 10px}
+.hud-in{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;font-size:1.2rem;margin-right:auto}
+.brand svg{width:38px;height:38px;flex:none}
+.lvl{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 220px;max-width:340px}
+.lvl-badge{font-family:var(--f-display);font-weight:700;background:var(--plum);color:#fff;border:3px solid var(--edge);border-radius:12px;padding:2px 10px;box-shadow:0 3px 0 var(--drop);white-space:nowrap}
+.bar{height:16px;background:var(--card);border:3px solid var(--edge);border-radius:99px;overflow:hidden;flex:1;min-width:60px}
+.bar>i{display:block;height:100%;background:var(--green);border-radius:99px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.bar.blue>i{background:var(--blue)} .bar.yellow>i{background:var(--yellow)}
+.stat{display:flex;align-items:center;gap:6px;font-family:var(--f-display);font-weight:700;background:var(--card);border:3px solid var(--edge);border-radius:99px;padding:2px 12px 2px 8px;box-shadow:0 3px 0 var(--drop)}
+.stat svg{width:22px;height:22px}
+.sound-btn{border:3px solid var(--edge);background:var(--card);border-radius:99px;width:40px;height:40px;display:grid;place-items:center;box-shadow:0 3px 0 var(--drop)}
+
+/* Tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:space-around;gap:4px;background:var(--card);border-top:3px solid var(--edge);padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px))}
+.tab{flex:1;border:0;background:transparent;border-radius:14px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:var(--f-display);font-weight:600;font-size:.78rem;color:var(--muted)}
+.tab svg{width:26px;height:26px}
+.tab[aria-current="page"]{background:var(--blue-soft);color:var(--blue)}
+@media (min-width:760px){
+  body{padding-block:0 48px}
+  .tabs{position:static;border:0;background:transparent;padding:6px 0 0;justify-content:flex-start;gap:8px;max-width:1040px;margin-inline:auto}
+  .tab{flex:none;flex-direction:row;gap:8px;padding:8px 16px;font-size:1rem;border:3px solid transparent}
+  .tab[aria-current="page"]{border-color:var(--edge);box-shadow:0 3px 0 var(--drop);background:var(--card);color:var(--fg)}
+}
+
+/* Cards and buttons */
+main{max-width:1040px;margin-inline:auto;padding-block:16px 24px}
+.screen{display:flex;flex-direction:column;gap:20px;animation:rise .35s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:3px solid var(--edge);border-radius:20px;box-shadow:0 5px 0 var(--drop);padding:18px;min-width:0}
+.card.blue{background:var(--blue-soft)} .card.yellow{background:var(--yellow-soft)} .card.green{background:var(--green-soft)} .card.plum{background:var(--plum-soft)} .card.red{background:var(--red-soft)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:12px}
+.btn{border:3px solid var(--edge);background:var(--card);color:var(--fg);border-radius:16px;padding:10px 18px;font-family:var(--f-display);font-weight:600;font-size:1.05rem;box-shadow:0 4px 0 var(--drop);transition:transform .08s,box-shadow .08s;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 var(--drop)}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.btn.primary{background:var(--blue);color:var(--on-blue)}
+.btn.green{background:var(--green);color:#fff}
+.btn.yellow{background:var(--yellow);color:var(--on-yellow)}
+.btn.red{background:var(--red);color:#fff}
+.btn.big{font-size:1.25rem;padding:14px 26px;min-height:58px}
+.btn.small{padding:4px 12px;min-height:38px;font-size:.95rem;border-radius:12px;box-shadow:0 3px 0 var(--drop)}
+.btn svg{width:22px;height:22px;flex:none}
+.pill{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--edge);border-radius:99px;padding:1px 12px;font-family:var(--f-display);font-weight:600;font-size:.9rem;background:var(--card)}
+.eyebrow{font-family:var(--f-display);font-weight:600;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* Home */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.hero .mascot{width:112px;height:112px}
+@media (max-width:520px){.hero{grid-template-columns:1fr}.hero .mascot{width:84px;height:84px}}
+.bubble{position:relative;background:var(--card);border:3px solid var(--edge);border-radius:18px;padding:12px 16px;box-shadow:0 4px 0 var(--drop)}
+.mode{display:flex;flex-direction:column;gap:10px;text-align:left;cursor:pointer;color:inherit;font:inherit;width:100%}
+.mode .ico{width:56px;height:56px;border-radius:16px;border:3px solid var(--edge);display:grid;place-items:center;font-size:1.7rem;background:var(--card)}
+.mode h3{font-size:1.3rem}
+.daily{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding-block:8px;border-top:2px dashed var(--edge)}
+.daily:first-of-type{border-top:0}
+.daily .chk{width:30px;height:30px;border:3px solid var(--edge);border-radius:10px;display:grid;place-items:center;background:var(--card)}
+.daily.done .chk{background:var(--green);color:#fff}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.ach{border:3px solid var(--edge);border-radius:16px;padding:12px;background:var(--card);text-align:center;display:flex;flex-direction:column;gap:4px;align-items:center}
+.ach .e{font-size:2rem;filter:grayscale(1);opacity:.4}
+.ach.on{background:var(--yellow-soft)} .ach.on .e{filter:none;opacity:1}
+.ach small{color:var(--muted);line-height:1.25}
+
+/* Photo quest */
+.scene{border:3px solid var(--edge);border-radius:20px;overflow:hidden;box-shadow:0 5px 0 var(--drop);background:var(--card);aspect-ratio:3/2;max-width:100%}
+.scene svg,.scene img{display:block;width:100%;height:100%;object-fit:cover}
+.quest{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.quest{grid-template-columns:minmax(0,1fr)}}
+.steps{display:flex;gap:6px}
+.steps i{flex:1;height:10px;border-radius:99px;background:var(--card);border:2px solid var(--edge)}
+.steps i.on{background:var(--yellow)} .steps i.ok{background:var(--green)}
+.qbox{display:flex;gap:12px;align-items:flex-start}
+.qbox svg.mini{width:46px;height:46px;flex:none}
+.qtext{font-family:var(--f-display);font-size:1.3rem;font-weight:600;line-height:1.25}
+textarea,input[type=text]{width:100%;font:inherit;color:var(--fg);background:var(--card);border:3px solid var(--edge);border-radius:16px;padding:12px 14px;resize:vertical;min-height:96px}
+input[type=text]{min-height:0}
+textarea::placeholder{color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:2px solid var(--edge);background:var(--card);border-radius:99px;padding:2px 12px;font-size:.95rem}
+.fb{display:flex;flex-direction:column;gap:12px}
+.fb .line{border:3px solid var(--edge);border-radius:14px;padding:10px 14px;background:var(--card)}
+.fb .line b{display:block;font-family:var(--f-display);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.fb .fix{background:var(--green-soft)} .fb .orig{background:var(--red-soft)} .fb .why{background:var(--yellow-soft)}
+del{text-decoration-thickness:2px;color:var(--red)} ins{text-decoration:none;font-weight:700;color:var(--green);background:transparent;border-bottom:3px solid var(--green)}
+.ring{--p:0;width:112px;height:112px;border-radius:50%;background:conic-gradient(var(--green) calc(var(--p)*1%),var(--card) 0);border:3px solid var(--edge);display:grid;place-items:center;flex:none;box-shadow:0 4px 0 var(--drop)}
+.ring span{width:84px;height:84px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:1.9rem;border:3px solid var(--edge)}
+.words{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
+.word{border:3px solid var(--edge);border-radius:16px;padding:12px;background:var(--card);display:flex;flex-direction:column;gap:6px;min-width:0}
+.word .w{font-family:var(--f-display);font-weight:700;font-size:1.3rem;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.word .em{font-size:1.5rem}
+.word .ex{color:var(--muted);font-size:.95rem}
+.listening{animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--red) 35%,transparent),0 4px 0 var(--drop)}}
+
+/* Mini-games */
+.opts{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.opt{border:3px solid var(--edge);background:var(--card);border-radius:16px;padding:14px;font-family:var(--f-display);font-weight:600;font-size:1.15rem;box-shadow:0 4px 0 var(--drop);min-height:56px;text-align:center}
+.opt:hover{transform:translateY(-1px)}
+.opt.correct{background:var(--green);color:#fff;animation:pop .3s}
+.opt.wrong{background:var(--red);color:#fff;animation:shake .3s}
+.opt[disabled]{pointer-events:none}
+@keyframes pop{50%{transform:scale(1.06)}}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.bigpic{font-size:clamp(4rem,18vw,7rem);text-align:center;line-height:1.1;padding:12px;border:3px dashed var(--edge);border-radius:20px;background:var(--card)}
+.sentence{font-family:var(--f-display);font-size:1.5rem;font-weight:600;text-align:center;text-wrap:balance}
+.blank{display:inline-block;min-width:4.5ch;border-bottom:4px solid var(--edge);color:var(--blue);padding-inline:6px}
+.tiles{display:flex;gap:8px;flex-wrap:wrap;min-height:56px}
+.tile{border:3px solid var(--edge);background:var(--yellow);color:var(--on-yellow);border-radius:12px;padding:6px 14px;font-family:var(--f-display);font-weight:600;font-size:1.15rem;box-shadow:0 3px 0 var(--drop)}
+.slot{border:3px dashed var(--edge);border-radius:16px;padding:10px;background:var(--card)}
+.match{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.match .opt{font-size:1rem;padding:10px}
+.match .opt.sel{background:var(--blue);color:#fff}
+.match .opt.done{background:var(--green);color:#fff;opacity:.65}
+
+/* Notebook & progress */
+.nb-row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding-block:10px;border-top:2px dashed var(--edge)}
+.nb-row:first-child{border-top:0}
+.nb-row .em{font-size:1.8rem}
+.stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.stats .card{display:flex;flex-direction:column;gap:2px}
+.stats .big{font-family:var(--f-display);font-weight:700;font-size:2rem;line-height:1}
+.week{display:flex;gap:8px;align-items:flex-end;height:130px}
+.week div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;font-size:.85rem}
+.week i{display:block;width:100%;background:var(--blue);border:3px solid var(--edge);border-radius:8px 8px 0 0;min-height:4px}
+
+/* Toast & modal */
+.toast-zone{position:fixed;left:0;right:0;top:calc(76px + env(safe-area-inset-top,0px));z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding-inline:16px}
+.toast{background:var(--yellow);color:var(--on-yellow);border:3px solid var(--edge);border-radius:16px;padding:8px 16px;font-family:var(--f-display);font-weight:700;box-shadow:0 4px 0 var(--drop);animation:rise .3s both}
+.modal{position:fixed;inset:0;z-index:80;background:color-mix(in srgb,var(--drop) 70%,transparent);display:grid;place-items:center;padding:16px}
+.modal .card{max-width:440px;width:100%;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:90}
+.chat{display:flex;flex-direction:column;gap:12px;max-height:min(55vh,520px);min-height:200px;overflow-y:auto;padding:4px}
+.msg{display:flex;gap:8px;align-items:flex-end;min-width:0}
+.msg.me{justify-content:flex-end}
+.msg .b{max-width:88%;border:3px solid var(--edge);border-radius:18px;padding:10px 14px;background:var(--card);box-shadow:0 3px 0 var(--drop);overflow-wrap:anywhere}
+.msg.me .b{background:var(--blue);color:var(--on-blue)}
+.msg svg.mini{width:40px;height:40px;flex:none}
+.hidden-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<header class="hud"><div class="hud-in wrap" id="hud"></div></header>
+<nav class="tabs" id="tabs" aria-label="Main menu"></nav>
+<main id="view" aria-live="polite"></main>
+<div class="toast-zone" id="toasts"></div>
+<div id="modal-root"></div>
+<canvas class="confetti" id="confetti" hidden></canvas>
+<script>
+/* ---------- Photo scenes (illustrations drawn in SVG) ---------- */
+const SCENES = {};
+const SVGH = '<svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="';
+
+SCENES.park = {
+  id:'park', title:'A girl in the park', em:'📖', tag:'Person',
+  alt:'A girl reading a book on a bench in a park',
+  svg:()=>SVGH+'A girl reading a book on a bench in a park">'+
+  '<rect width="600" height="400" fill="#BFE7FF"/><circle cx="500" cy="70" r="38" fill="#FFD84D"/>'+
+  '<ellipse cx="150" cy="250" rx="260" ry="110" fill="#7ED08A"/><ellipse cx="480" cy="270" rx="280" ry="120" fill="#5FC27A"/>'+
+  '<rect y="300" width="600" height="100" fill="#4DB86B"/>'+
+  '<rect x="95" y="150" width="26" height="170" fill="#8B5A3C"/><circle cx="108" cy="120" r="70" fill="#2E9E57"/><circle cx="68" cy="152" r="45" fill="#38AE64"/><circle cx="150" cy="145" r="48" fill="#38AE64"/>'+
+  '<rect x="215" y="212" width="220" height="14" rx="4" fill="#A9693C"/><rect x="215" y="234" width="220" height="14" rx="4" fill="#A9693C"/>'+
+  '<rect x="225" y="212" width="12" height="70" fill="#8C5530"/><rect x="412" y="212" width="12" height="70" fill="#8C5530"/>'+
+  '<rect x="205" y="262" width="240" height="18" rx="4" fill="#B97745"/><rect x="225" y="280" width="14" height="50" fill="#6E4226"/><rect x="412" y="280" width="14" height="50" fill="#6E4226"/>'+
+  '<rect x="352" y="268" width="22" height="58" rx="10" fill="#2B4C9B"/><ellipse cx="370" cy="332" rx="22" ry="8" fill="#fff"/>'+
+  '<rect x="296" y="178" width="70" height="92" rx="26" fill="#E8432F"/><rect x="300" y="252" width="72" height="24" rx="12" fill="#2B4C9B"/>'+
+  '<circle cx="331" cy="146" r="35" fill="#2A1B14"/><circle cx="331" cy="154" r="28" fill="#F2C4A0"/><circle cx="321" cy="152" r="3" fill="#2A1B14"/><circle cx="341" cy="152" r="3" fill="#2A1B14"/>'+
+  '<path d="M320 163q11 9 22 0" stroke="#7A3B2E" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+  '<path d="M300 208l31-9 31 9v40l-31-9-31 9z" fill="#3A6BFF"/><path d="M331 199v40" stroke="#fff" stroke-width="3"/>'+
+  '<path d="M304 218q8 22 24 20" stroke="#E8432F" stroke-width="14" fill="none" stroke-linecap="round"/>'+
+  '<path d="M470 140q10-12 20 0q10-12 20 0" stroke="#13213C" stroke-width="3" fill="none"/>'+
+  [30,70,480,520,560,455].map((x,i)=>'<circle cx="'+x+'" cy="'+(340+(i%3)*18)+'" r="6" fill="'+['#FF7BA9','#FFD84D','#fff'][i%3]+'"/>').join('')+'</svg>',
+  qs:[
+   {k:'see', q:'What can you see in the picture?', need:[['girl','woman','person','lady','teenager'],['bench','seat'],['tree','trees'],['book','books']], min:2,
+    model:'I can see a girl on a bench. She has a book. There is a big tree behind her.', tip:'Start with "I can see..." or "There is a ...".'},
+   {k:'doing', q:'What is the girl doing?', need:[['reading','read','reads'],['book'],['sitting','sit','sits']], min:1,
+    model:'She is reading a book. She is sitting on a bench.', tip:'Use "is" + verb with -ing: is reading, is sitting.'},
+   {k:'where', q:'Where is she?', need:[['park','garden','outside','outdoors'],['bench'],['tree','trees']], min:1,
+    model:'She is in a park. She is on a bench under a tree.', tip:'Use "in" for a place (in a park) and "on" for a bench.'},
+   {k:'color', q:'What color is her jacket?', need:[['red']], min:1,
+    model:'Her jacket is red.', tip:'Say: "Her jacket is ... ".'},
+   {k:'feel', q:'How does the girl feel?', need:[['happy','calm','relaxed','peaceful','quiet','good','comfortable','good','fine','interested','glad']], min:1,
+    model:'I think she feels happy and relaxed.', tip:'Try: "I think she feels ... ". Words: happy, calm, relaxed.'}
+  ],
+  free:{q:'Now describe the whole picture. Write 2 or 3 sentences.', model:'I can see a girl in a park. She is sitting on a bench and she is reading a book. She is wearing a red jacket and blue jeans. She looks happy.',
+        words:['girl','bench','tree','book','park','jacket','reading','sitting','red','happy','blue','jeans','sun','flowers','bird']},
+  vocab:[
+   {w:'bench',em:'🪑',mean:'a long seat in a park',ex:'She sits on a bench.'},
+   {w:'jacket',em:'🧥',mean:'a short coat',ex:'Her jacket is red.'},
+   {w:'relaxed',em:'😌',mean:'calm and not worried',ex:'She feels relaxed.'},
+   {w:'jeans',em:'👖',mean:'blue trousers',ex:'She is wearing jeans.'},
+   {w:'behind',em:'↩️',mean:'at the back of something',ex:'The tree is behind the bench.'}
+  ]
+};
+
+SCENES.house = {
+  id:'house', title:'My little house', em:'🏠', tag:'House',
+  alt:'A small house with a red roof and a blue door',
+  svg:()=>SVGH+'A small house with a red roof, a blue door and a garden">'+
+  '<rect width="600" height="400" fill="#C7EBFF"/><circle cx="70" cy="70" r="34" fill="#FFD84D"/>'+
+  '<ellipse cx="300" cy="340" rx="420" ry="120" fill="#68C87E"/><rect y="330" width="600" height="70" fill="#4DB86B"/>'+
+  '<g fill="#fff" opacity=".95"><ellipse cx="420" cy="70" rx="48" ry="16"/><ellipse cx="450" cy="58" rx="30" ry="14"/><ellipse cx="190" cy="50" rx="40" ry="13"/></g>'+
+  '<rect x="500" y="200" width="22" height="130" fill="#8B5A3C"/><circle cx="511" cy="190" r="56" fill="#2E9E57"/><circle cx="480" cy="215" r="34" fill="#38AE64"/>'+
+  '<rect x="360" y="110" width="30" height="60" fill="#8C5530"/>'+
+  '<rect x="170" y="190" width="260" height="150" fill="#FFE9C7" stroke="#13213C" stroke-width="4"/>'+
+  '<polygon points="148,196 300,96 452,196" fill="#E8432F" stroke="#13213C" stroke-width="4" stroke-linejoin="round"/>'+
+  '<rect x="276" y="250" width="50" height="90" fill="#2F6BFF" stroke="#13213C" stroke-width="4"/><circle cx="315" cy="298" r="4" fill="#FFD84D"/>'+
+  '<g stroke="#13213C" stroke-width="4"><rect x="195" y="225" width="56" height="56" fill="#FFD84D"/><rect x="350" y="225" width="56" height="56" fill="#FFD84D"/>'+
+  '<path d="M223 225v56M195 253h56M378 225v56M350 253h56" fill="none"/></g>'+
+  '<polygon points="276,340 326,340 372,400 230,400" fill="#C9CED6"/>'+
+  Array.from({length:7},(_,i)=>'<rect x="'+(12+i*22)+'" y="318" width="14" height="46" rx="3" fill="#fff" stroke="#13213C" stroke-width="2"/>').join('')+
+  [190,215,380,405,430].map((x,i)=>'<g><rect x="'+(x-1)+'" y="352" width="3" height="22" fill="#2E9E57"/><circle cx="'+x+'" cy="350" r="9" fill="'+['#FF7BA9','#FF5C4D','#fff','#FFD84D','#FF7BA9'][i]+'"/></g>').join('')+'</svg>',
+  qs:[
+   {k:'see', q:'What can you see in the picture?', need:[['house','home'],['door'],['window','windows'],['roof'],['garden','flowers','tree','fence','grass']], min:2,
+    model:'I can see a small house. It has a door, two windows and a roof. There is a tree and a fence.', tip:'Use "There is a ..." for one thing and "There are two ..." for many.'},
+   {k:'color', q:'What color is the door?', need:[['blue']], min:1, model:'The door is blue.', tip:'Say: "The door is ... ".'},
+   {k:'color', q:'What color is the roof?', need:[['red']], min:1, model:'The roof is red.', tip:'Say: "The roof is ... ".'},
+   {k:'where', q:'What is in front of the house?', need:[['garden','flowers','path','grass','fence','flower']], min:1,
+    model:'There is a garden in front of the house. There are flowers and a white fence.', tip:'Use "in front of" for the place before the house.'},
+   {k:'feel', q:'Would you like to live in this house? Why?', need:[['yes','no','like','love','want','would'],['because','small','big','nice','beautiful','cute','quiet','garden']], min:2,
+    model:'Yes, I would like to live here because it is nice and it has a garden.', tip:'Use "because" to say why: I like it because ...'}
+  ],
+  free:{q:'Now describe the whole picture. Write 2 or 3 sentences.', model:'This is a small house. It has a red roof and a blue door. There are two yellow windows and a garden with flowers.',
+        words:['house','roof','door','window','windows','garden','flowers','fence','tree','red','blue','yellow','small','path','sun']},
+  vocab:[
+   {w:'roof',em:'🏠',mean:'the top of a house',ex:'The roof is red.'},
+   {w:'fence',em:'🚧',mean:'a wall of wood around a garden',ex:'The fence is white.'},
+   {w:'garden',em:'🌷',mean:'a place with flowers and grass',ex:'There are flowers in the garden.'},
+   {w:'chimney',em:'🏭',mean:'smoke goes out of it',ex:'The house has a chimney.'},
+   {w:'path',em:'🛤️',mean:'a small way to walk on',ex:'The path goes to the door.'}
+  ]
+};
+
+SCENES.city = {
+  id:'city', title:'A busy city street', em:'🏙️', tag:'City',
+  alt:'A city street with tall buildings, a yellow bus, a red car and people',
+  svg:()=>{
+    const cols=['#7B8FD6','#F2A65A','#6CC3A1','#E56B6F','#9C7BD6','#5AA9E6'];
+    let b='';
+    [[10,120,70],[85,60,90],[180,150,80],[265,90,75],[345,170,90],[440,110,70],[515,140,75]].forEach((d,i)=>{
+      const [x,h,w]=d; const y=300-h; b+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+cols[i%6]+'" stroke="#13213C" stroke-width="3"/>';
+      for(let r=0;r<Math.floor(h/32);r++)for(let c=0;c<Math.floor(w/26);c++)b+='<rect x="'+(x+8+c*24)+'" y="'+(y+10+r*30)+'" width="14" height="18" fill="#FFF3B0"/>';
+    });
+    return SVGH+'A busy city street with a yellow bus, a red car and people walking">'+
+    '<rect width="600" height="400" fill="#BEE5FF"/><circle cx="540" cy="50" r="26" fill="#FFD84D"/>'+b+
+    '<rect y="300" width="600" height="100" fill="#4B5568"/><rect y="296" width="600" height="14" fill="#C9CED6"/>'+
+    '<g fill="#fff">'+[20,120,220,320,420,520].map(x=>'<rect x="'+x+'" y="350" width="60" height="8" rx="3"/>').join('')+'</g>'+
+    '<rect x="40" y="298" width="190" height="56" rx="14" fill="#FFC83D" stroke="#13213C" stroke-width="4"/>'+
+    '<g fill="#BEE5FF" stroke="#13213C" stroke-width="3"><rect x="52" y="308" width="40" height="22" rx="4"/><rect x="100" y="308" width="40" height="22" rx="4"/><rect x="148" y="308" width="40" height="22" rx="4"/></g>'+
+    '<circle cx="82" cy="356" r="14" fill="#222" stroke="#13213C" stroke-width="3"/><circle cx="190" cy="356" r="14" fill="#222" stroke="#13213C" stroke-width="3"/>'+
+    '<rect x="330" y="318" width="120" height="38" rx="14" fill="#E8432F" stroke="#13213C" stroke-width="4"/><rect x="352" y="300" width="68" height="26" rx="10" fill="#E8432F" stroke="#13213C" stroke-width="4"/>'+
+    '<circle cx="360" cy="358" r="12" fill="#222" stroke="#13213C" stroke-width="3"/><circle cx="426" cy="358" r="12" fill="#222" stroke="#13213C" stroke-width="3"/>'+
+    '<rect x="486" y="190" width="8" height="112" fill="#4B5568"/><rect x="474" y="150" width="32" height="46" rx="8" fill="#222"/><circle cx="490" cy="163" r="7" fill="#FF5C4D"/><circle cx="490" cy="184" r="7" fill="#6EE7A0"/>'+
+    [[262,"#2F6BFF"],[290,"#FF7BA9"],[540,"#12A163"]].map(p=>'<g><circle cx="'+p[0]+'" cy="268" r="9" fill="#F2C4A0"/><rect x="'+(p[0]-10)+'" y="278" width="20" height="30" rx="8" fill="'+p[1]+'"/><rect x="'+(p[0]-8)+'" y="305" width="6" height="18" fill="#13213C"/><rect x="'+(p[0]+2)+'" y="305" width="6" height="18" fill="#13213C"/></g>').join('')+'</svg>';
+  },
+  qs:[
+   {k:'see', q:'What can you see in the picture?', need:[['bus'],['car'],['building','buildings'],['people','person','man','woman','girl','boy'],['street','road','city']], min:2,
+    model:'I can see tall buildings, a yellow bus and a red car. There are people on the street.', tip:'Use "There are" for many things: There are tall buildings.'},
+   {k:'where', q:'Where is this place?', need:[['city','street','road','town','downtown']], min:1,
+    model:'This is a city street. It is in a big city.', tip:'Say: "This is a ... ".'},
+   {k:'color', q:'What color is the bus?', need:[['yellow']], min:1, model:'The bus is yellow.', tip:'Say: "The bus is ... ".'},
+   {k:'doing', q:'What are the people doing?', need:[['walking','walk','walks','standing','waiting','crossing','talking'],['street','road','city','sidewalk','pavement']], min:1,
+    model:'The people are walking on the street.', tip:'Use "are" + verb with -ing for many people: are walking.'},
+   {k:'feel', q:'How does the city feel? Is it quiet or busy?', need:[['busy','noisy','loud','crowded','quiet','big','exciting','active']], min:1,
+    model:'I think the city feels busy and noisy.', tip:'Words: busy, noisy, quiet, crowded.'}
+  ],
+  free:{q:'Now describe the whole picture. Write 2 or 3 sentences.', model:'This is a busy city street. I can see tall buildings, a yellow bus and a red car. Three people are walking on the sidewalk.',
+        words:['city','street','buildings','bus','car','people','walking','yellow','red','tall','busy','road','traffic','light','sun']},
+  vocab:[
+   {w:'traffic light',em:'🚦',mean:'a light that tells cars to stop or go',ex:'The traffic light is red.'},
+   {w:'sidewalk',em:'🚶',mean:'the place where people walk next to a road',ex:'People walk on the sidewalk.'},
+   {w:'tall',em:'🏢',mean:'very high',ex:'The buildings are tall.'},
+   {w:'busy',em:'🧑‍🤝‍🧑',mean:'with a lot of people or cars',ex:'The street is busy.'},
+   {w:'crowded',em:'👥',mean:'too many people in one place',ex:'The bus is crowded.'}
+  ]
+};
+SCENES.food = {
+  id:'food', title:'Breakfast time', em:'🍳', tag:'Food',
+  alt:'A breakfast table with eggs, bread, orange juice, tea and an apple',
+  svg:()=>SVGH+'A breakfast table with eggs, bread, orange juice, tea and an apple">'+
+  '<rect width="600" height="400" fill="#D9A066"/>'+
+  [0,1,2,3,4,5].map(i=>'<rect x="0" y="'+(i*70)+'" width="600" height="3" fill="#C58B52"/>').join('')+
+  '<circle cx="250" cy="205" r="130" fill="#fff" stroke="#13213C" stroke-width="4"/><circle cx="250" cy="205" r="98" fill="#F1F4F8"/>'+
+  '<path d="M190 190q-14-34 22-46q40-10 52 20q20 10 6 36q-10 30-48 24q-40-4-32-34z" fill="#fff" stroke="#13213C" stroke-width="3"/>'+
+  '<circle cx="226" cy="186" r="22" fill="#FFC83D" stroke="#13213C" stroke-width="3"/>'+
+  '<path d="M262 222q10-26 44-18q26 14 8 40q-22 20-48 6q-12-10-4-28z" fill="#fff" stroke="#13213C" stroke-width="3"/>'+
+  '<circle cx="288" cy="226" r="17" fill="#FFC83D" stroke="#13213C" stroke-width="3"/>'+
+  '<rect x="152" y="70" width="86" height="56" rx="18" fill="#E9B866" stroke="#13213C" stroke-width="4"/><rect x="262" y="66" width="86" height="56" rx="18" fill="#E9B866" stroke="#13213C" stroke-width="4"/>'+
+  '<path d="M170 98h50M280 94h50" stroke="#C98F3E" stroke-width="4" stroke-linecap="round"/>'+
+  '<path d="M420 120h90l-12 150a14 14 0 0 1-14 12h-38a14 14 0 0 1-14-12z" fill="#FF9F1C" stroke="#13213C" stroke-width="4"/><ellipse cx="465" cy="120" rx="45" ry="10" fill="#FFC15E" stroke="#13213C" stroke-width="4"/>'+
+  '<rect x="440" y="80" width="8" height="70" rx="4" fill="#12A163" transform="rotate(14 444 115)"/>'+
+  '<circle cx="470" cy="330" r="46" fill="#fff" stroke="#13213C" stroke-width="4"/><circle cx="470" cy="330" r="32" fill="#8B4A2B"/><path d="M516 322q26 0 22 20q-4 14-26 10" stroke="#13213C" stroke-width="5" fill="none"/>'+
+  '<circle cx="90" cy="320" r="42" fill="#E8432F" stroke="#13213C" stroke-width="4"/><path d="M90 280q4-22 20-28" stroke="#6E4226" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="112" cy="268" rx="16" ry="8" fill="#12A163" stroke="#13213C" stroke-width="3" transform="rotate(-30 112 268)"/>'+
+  '<rect x="380" y="330" width="8" height="60" rx="4" fill="#C9CED6" stroke="#13213C" stroke-width="2"/><rect x="560" y="50" width="8" height="120" rx="4" fill="#C9CED6" stroke="#13213C" stroke-width="2"/></svg>',
+  qs:[
+   {k:'see', q:'What food can you see in the picture?', need:[['egg','eggs'],['bread','toast'],['juice','orange'],['tea','cup','coffee'],['apple']], min:3,
+    model:'I can see eggs, bread, orange juice, tea and an apple.', tip:'Put "and" before the last thing: eggs, bread and an apple.'},
+   {k:'color', q:'What color is the juice?', need:[['orange']], min:1, model:'The juice is orange.', tip:'Say: "The juice is ... ".'},
+   {k:'color', q:'What color is the apple?', need:[['red']], min:1, model:'The apple is red.', tip:'Say: "The apple is ... ".'},
+   {k:'where', q:'Is this breakfast, lunch or dinner? Why?', need:[['breakfast'],['eggs','egg','morning','juice','bread','toast','because']], min:2,
+    model:'I think it is breakfast because there are eggs, bread and juice.', tip:'Use "because" to give a reason.'},
+   {k:'feel', q:'Do you like this food? How does it look?', need:[['yes','no','like','love','delicious','good','nice','tasty','healthy','hungry','yummy']], min:1,
+    model:'Yes, I like it. The food looks delicious and healthy.', tip:'Words: delicious, tasty, healthy, hungry.'}
+  ],
+  free:{q:'Now describe the whole picture. Write 2 or 3 sentences.', model:'This is a breakfast table. There are two eggs and two pieces of bread on a white plate. There is a glass of orange juice, a cup of tea and a red apple.',
+        words:['breakfast','table','plate','eggs','bread','juice','tea','cup','apple','orange','red','white','glass','food','delicious']},
+  vocab:[
+   {w:'plate',em:'🍽️',mean:'a flat dish for food',ex:'The eggs are on the plate.'},
+   {w:'glass',em:'🥛',mean:'you drink from it',ex:'There is a glass of juice.'},
+   {w:'delicious',em:'😋',mean:'very good to eat',ex:'The food looks delicious.'},
+   {w:'healthy',em:'🥗',mean:'good for your body',ex:'An apple is healthy.'},
+   {w:'toast',em:'🍞',mean:'bread that is hot and crispy',ex:'I eat toast in the morning.'}
+  ]
+};
+
+SCENES.animals = {
+  id:'animals', title:'Dog and cat in the garden', em:'🐶', tag:'Animals',
+  alt:'A brown dog with a red ball and an orange cat in a garden',
+  svg:()=>SVGH+'A brown dog with a red ball and an orange cat in a garden">'+
+  '<rect width="600" height="400" fill="#C9ECFF"/><circle cx="520" cy="62" r="32" fill="#FFD84D"/>'+
+  '<rect y="190" width="600" height="210" fill="#5FC27A"/>'+
+  Array.from({length:14},(_,i)=>'<rect x="'+(i*46-4)+'" y="140" width="32" height="90" rx="6" fill="#fff" stroke="#13213C" stroke-width="3"/>').join('')+
+  '<rect y="165" width="600" height="12" fill="#fff" stroke="#13213C" stroke-width="3"/>'+
+  [60,250,560,330].map((x,i)=>'<g><rect x="'+(x-1)+'" y="300" width="3" height="40" fill="#2E9E57"/><circle cx="'+x+'" cy="296" r="11" fill="'+['#FF7BA9','#FFD84D','#fff','#FF5C4D'][i]+'"/></g>').join('')+
+  '<ellipse cx="200" cy="350" rx="90" ry="14" fill="#000" opacity=".12"/>'+
+  '<ellipse cx="200" cy="300" rx="62" ry="58" fill="#B5733E" stroke="#13213C" stroke-width="4"/><circle cx="205" cy="220" r="44" fill="#C98448" stroke="#13213C" stroke-width="4"/>'+
+  '<ellipse cx="166" cy="212" rx="16" ry="34" fill="#7A4A25" stroke="#13213C" stroke-width="4" transform="rotate(18 166 212)"/><ellipse cx="244" cy="212" rx="16" ry="34" fill="#7A4A25" stroke="#13213C" stroke-width="4" transform="rotate(-18 244 212)"/>'+
+  '<circle cx="190" cy="214" r="6" fill="#13213C"/><circle cx="222" cy="214" r="6" fill="#13213C"/><ellipse cx="206" cy="234" rx="12" ry="9" fill="#13213C"/><path d="M206 243v6q-8 8-16 2M206 249q8 8 16 2" stroke="#13213C" stroke-width="3" fill="none"/>'+
+  '<ellipse cx="164" cy="345" rx="22" ry="12" fill="#C98448" stroke="#13213C" stroke-width="3"/><ellipse cx="236" cy="345" rx="22" ry="12" fill="#C98448" stroke="#13213C" stroke-width="3"/>'+
+  '<circle cx="320" cy="338" r="22" fill="#E8432F" stroke="#13213C" stroke-width="4"/><path d="M304 330q16 10 32 0" stroke="#fff" stroke-width="3" fill="none"/>'+
+  '<ellipse cx="470" cy="300" rx="64" ry="54" fill="#F29A3B" stroke="#13213C" stroke-width="4"/><circle cx="470" cy="236" r="38" fill="#F6A94E" stroke="#13213C" stroke-width="4"/>'+
+  '<polygon points="438,214 440,178 462,204" fill="#F29A3B" stroke="#13213C" stroke-width="4" stroke-linejoin="round"/><polygon points="502,214 500,178 478,204" fill="#F29A3B" stroke="#13213C" stroke-width="4" stroke-linejoin="round"/>'+
+  '<path d="M452 236q8-6 16 0M474 236q8-6 16 0" stroke="#13213C" stroke-width="4" fill="none" stroke-linecap="round"/><polygon points="464,248 478,248 471,257" fill="#FF7BA9"/>'+
+  '<path d="M440 246h-30M440 252l-28 8M502 246h30M502 252l28 8" stroke="#13213C" stroke-width="2"/>'+
+  '<path d="M440 280q4 12 0 24M468 270q4 14 0 30M496 280q4 12 0 24" stroke="#C26E1A" stroke-width="5" fill="none" stroke-linecap="round"/>'+
+  '<path d="M530 320q50 10 44-40" stroke="#F29A3B" stroke-width="14" fill="none" stroke-linecap="round"/></svg>',
+  qs:[
+   {k:'see', q:'What animals can you see?', need:[['dog','puppy'],['cat','kitten']], min:2,
+    model:'I can see a dog and a cat.', tip:'Say: "I can see a ... and a ... ".'},
+   {k:'color', q:'What color is the cat?', need:[['orange','ginger','yellow','brown']], min:1, model:'The cat is orange.', tip:'Say: "The cat is ... ".'},
+   {k:'doing', q:'What is the dog doing?', need:[['sitting','sit','sits','waiting','looking','playing','resting','relaxing'],['ball','garden','grass']], min:1,
+    model:'The dog is sitting in the garden. It is looking at the ball.', tip:'Use "is" + verb with -ing: is sitting, is looking.'},
+   {k:'where', q:'Where are the animals?', need:[['garden','yard','park','grass','outside','fence','home']], min:1,
+    model:'The animals are in a garden. They are on the grass.', tip:'Use "in a garden" and "on the grass".'},
+   {k:'feel', q:'How do the animals feel?', need:[['happy','calm','relaxed','friendly','sleepy','good','peaceful','comfortable','playful','safe']], min:1,
+    model:'I think the animals feel happy and calm.', tip:'Words: happy, calm, friendly, sleepy.'}
+  ],
+  free:{q:'Now describe the whole picture. Write 2 or 3 sentences.', model:'There is a brown dog and an orange cat in a garden. The dog is sitting on the grass and there is a red ball next to it. They look happy.',
+        words:['dog','cat','garden','grass','fence','ball','brown','orange','red','flowers','sitting','happy','sun','animals','next']},
+  vocab:[
+   {w:'puppy',em:'🐕',mean:'a young dog',ex:'The puppy plays with a ball.'},
+   {w:'tail',em:'🐈',mean:'the long part at the back of an animal',ex:'The cat has a long tail.'},
+   {w:'whiskers',em:'😺',mean:'the long hairs on a cat\'s face',ex:'The cat has white whiskers.'},
+   {w:'next to',em:'↔️',mean:'very close to something',ex:'The ball is next to the dog.'},
+   {w:'friendly',em:'🤗',mean:'kind and nice to people',ex:'The dog is friendly.'}
+  ]
+};
+
+SCENES.nature = {
+  id:'nature', title:'A quiet mountain lake', em:'🏔️', tag:'Nature',
+  alt:'A mountain lake with a small boat and a man fishing at sunrise',
+  svg:()=>SVGH+'A mountain lake at sunrise with a small boat and a man fishing">'+
+  '<defs><linearGradient id="skyN" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FB2FF"/><stop offset="1" stop-color="#FFD9A0"/></linearGradient>'+
+  '<linearGradient id="lakeN" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6CC6E8"/><stop offset="1" stop-color="#2D86C4"/></linearGradient></defs>'+
+  '<rect width="600" height="400" fill="url(#skyN)"/><circle cx="420" cy="170" r="44" fill="#FFE9A8"/>'+
+  '<polygon points="0,230 130,70 260,230" fill="#7C8DB5" stroke="#13213C" stroke-width="4" stroke-linejoin="round"/><polygon points="94,110 130,70 166,110 148,102 130,118 112,102" fill="#fff"/>'+
+  '<polygon points="180,230 340,40 500,230" fill="#6A7BA6" stroke="#13213C" stroke-width="4" stroke-linejoin="round"/><polygon points="296,92 340,40 384,92 360,84 340,104 318,84" fill="#fff"/>'+
+  '<polygon points="400,230 520,110 640,230" fill="#7C8DB5" stroke="#13213C" stroke-width="4" stroke-linejoin="round"/>'+
+  '<rect y="226" width="600" height="174" fill="url(#lakeN)"/>'+
+  '<g stroke="#fff" stroke-width="3" opacity=".6" stroke-linecap="round"><path d="M60 270h50M200 300h70M430 262h60M360 330h80M90 340h60"/></g>'+
+  [20,70,110].map((x,i)=>'<g><rect x="'+(x+14)+'" y="'+(200+i*6)+'" width="10" height="34" fill="#6E4226"/><polygon points="'+x+','+(214+i*6)+' '+(x+19)+','+(150+i*6)+' '+(x+38)+','+(214+i*6)+'" fill="#1F7A47" stroke="#13213C" stroke-width="3"/><polygon points="'+(x+4)+','+(186+i*6)+' '+(x+19)+','+(140+i*6)+' '+(x+34)+','+(186+i*6)+'" fill="#2E9E57" stroke="#13213C" stroke-width="3"/></g>').join('')+
+  '<path d="M250 318h140l-20 28h-100z" fill="#B5733E" stroke="#13213C" stroke-width="4" stroke-linejoin="round"/>'+
+  '<rect x="310" y="276" width="34" height="44" rx="12" fill="#E8432F"/><circle cx="327" cy="264" r="15" fill="#F2C4A0"/><path d="M311 262h32l-6-14h-20z" fill="#FFC83D" stroke="#13213C" stroke-width="3" stroke-linejoin="round"/>'+
+  '<path d="M340 292L430 240" stroke="#13213C" stroke-width="3"/><path d="M430 240v70" stroke="#13213C" stroke-width="1.5"/><circle cx="430" cy="312" r="4" fill="#E8432F"/>'+
+  '<path d="M20 280h40M500 300h60" stroke="#fff" stroke-width="3" opacity=".6" stroke-linecap="round"/></svg>',
+  qs:[
+   {k:'see', q:'What can you see in the picture?', need:[['mountain','mountains'],['lake','water'],['boat'],['man','person','fisherman','people'],['tree','trees','snow']], min:3,
+    model:'I can see mountains, a lake and a small boat. There is a man in the boat. There are trees near the water.', tip:'Start with "I can see..." and use "and" before the last thing.'},
+   {k:'where', q:'Where is this place?', need:[['lake','mountain','mountains','nature','outside','countryside','water']], min:1,
+    model:'This is a lake in the mountains.', tip:'Say: "This is a lake in the mountains."'},
+   {k:'doing', q:'What is the man doing?', need:[['fishing','fish','fishes','sitting','waiting','relaxing'],['boat','lake','water']], min:1,
+    model:'The man is fishing. He is sitting in a boat on the lake.', tip:'Use "is" + verb with -ing: is fishing, is sitting.'},
+   {k:'color', q:'What color is the water?', need:[['blue']], min:1, model:'The water is blue.', tip:'Say: "The water is ... ".'},
+   {k:'feel', q:'How do you feel in this place? Is it hot or cold?', need:[['cold','cool','hot','warm','chilly','fresh'],['quiet','calm','peaceful','relaxed','happy','good','beautiful','nice']], min:1,
+    model:'I think it is cool here. I feel calm and relaxed because it is quiet.', tip:'Words: peaceful, quiet, calm, cool, warm.'}
+  ],
+  free:{q:'Now describe the whole picture. Write 2 or 3 sentences.', model:'This is a beautiful lake in the mountains. A man is fishing in a small boat. There are green trees and white snow on the mountains.',
+        words:['mountain','mountains','lake','water','boat','man','fishing','trees','snow','blue','green','white','sun','sky','quiet']},
+  vocab:[
+   {w:'mountain',em:'⛰️',mean:'a very big hill',ex:'The mountain has snow on top.'},
+   {w:'lake',em:'🏞️',mean:'a big area of water with land around it',ex:'The lake is blue.'},
+   {w:'fishing',em:'🎣',mean:'trying to catch fish',ex:'He is fishing in the boat.'},
+   {w:'peaceful',em:'🕊️',mean:'quiet and calm',ex:'The place is peaceful.'},
+   {w:'sunrise',em:'🌅',mean:'when the sun comes up in the morning',ex:'The sunrise is beautiful.'}
+  ]
+};
+
+const SCENE_ORDER = ['park','house','city','food','animals','nature'];
+/* ---------- Word banks for mini-games (t = difficulty tier 1..3) ---------- */
+const WORDS = [
+ {w:'apple',em:'🍎',m:'a round red or green fruit',s:'I eat an ___ every day.',t:1},
+ {w:'dog',em:'🐶',m:'a pet that barks',s:'My ___ likes to play in the park.',t:1},
+ {w:'cat',em:'🐱',m:'a small pet that says "meow"',s:'The ___ is sleeping on the sofa.',t:1},
+ {w:'house',em:'🏠',m:'a building where people live',s:'We live in a big ___.',t:1},
+ {w:'car',em:'🚗',m:'a vehicle with four wheels',s:'My father drives a red ___.',t:1},
+ {w:'bus',em:'🚌',m:'a big vehicle for many people',s:'I go to school by ___.',t:1},
+ {w:'book',em:'📖',m:'you read it',s:'She is reading a good ___.',t:1},
+ {w:'tree',em:'🌳',m:'a tall plant with leaves',s:'The bird is in the ___.',t:1},
+ {w:'sun',em:'☀️',m:'the bright star in the sky',s:'The ___ is hot today.',t:1},
+ {w:'moon',em:'🌙',m:'you see it in the sky at night',s:'The ___ is bright tonight.',t:1},
+ {w:'water',em:'💧',m:'you drink it',s:'Can I have a glass of ___, please?',t:1},
+ {w:'bread',em:'🍞',m:'food made from flour',s:'I want bread and ___ for breakfast. (butter)',t:1,skip:1},
+ {w:'egg',em:'🥚',m:'a chicken makes it',s:'I eat an ___ in the morning.',t:1},
+ {w:'milk',em:'🥛',m:'a white drink from cows',s:'The baby drinks ___.',t:1},
+ {w:'chair',em:'🪑',m:'you sit on it',s:'Please sit on the ___.',t:1},
+ {w:'phone',em:'📱',m:'you call people with it',s:'My ___ is on the table.',t:1},
+ {w:'shoes',em:'👟',m:'you wear them on your feet',s:'I wear my new ___ to school.',t:1},
+ {w:'hat',em:'🧢',m:'you wear it on your head',s:'He has a blue ___ on his head.',t:1},
+ {w:'key',em:'🔑',m:'you open a door with it',s:'I cannot find my ___.',t:1},
+ {w:'clock',em:'⏰',m:'it tells you the time',s:'Look at the ___. It is seven o\'clock.',t:1},
+ {w:'flower',em:'🌷',m:'a pretty plant, red or yellow',s:'She has a red ___ in her hand.',t:2},
+ {w:'fish',em:'🐟',m:'an animal that lives in water',s:'He is catching a big ___.',t:2},
+ {w:'bird',em:'🐦',m:'an animal with wings',s:'A small ___ is singing.',t:2},
+ {w:'banana',em:'🍌',m:'a long yellow fruit',s:'A monkey eats a ___.',t:2},
+ {w:'pizza',em:'🍕',m:'round food with cheese',s:'We eat ___ on Friday.',t:2},
+ {w:'rain',em:'🌧️',m:'water that falls from clouds',s:'Take an umbrella. It is going to ___.',t:2,skip:1},
+ {w:'snow',em:'❄️',m:'white and cold, it falls in winter',s:'Children play in the ___.',t:2},
+ {w:'bike',em:'🚲',m:'you ride it with two wheels',s:'I ride my ___ to work.',t:2},
+ {w:'plane',em:'✈️',m:'it flies in the sky',s:'The ___ lands at ten o\'clock.',t:2},
+ {w:'boat',em:'⛵',m:'it moves on water',s:'The man is fishing in a small ___.',t:2},
+ {w:'mountain',em:'⛰️',m:'a very big hill',s:'There is snow on the ___.',t:2},
+ {w:'beach',em:'🏖️',m:'sand next to the sea',s:'We swim at the ___ in summer.',t:2},
+ {w:'hospital',em:'🏥',m:'doctors work here',s:'The doctor works in a ___.',t:2},
+ {w:'school',em:'🏫',m:'children learn here',s:'My sister goes to ___ every day.',t:2},
+ {w:'bag',em:'🎒',m:'you carry things in it',s:'My ___ is very heavy today.',t:2},
+ {w:'umbrella',em:'☂️',m:'it keeps you dry in the rain',s:'It is raining. Take your ___.',t:3},
+ {w:'camera',em:'📷',m:'you take photos with it',s:'I take photos with my new ___.',t:3},
+ {w:'guitar',em:'🎸',m:'a music instrument with strings',s:'He plays the ___ very well.',t:3},
+ {w:'ball',em:'⚽',m:'you kick or throw it in a game',s:'The boys are kicking the ___.',t:3},
+ {w:'cake',em:'🍰',m:'a sweet food for a birthday',s:'We eat ___ on my birthday.',t:3}
+].filter(x=>!x.skip);
+
+/* Grammar and vocabulary multiple choice: q, opts, a = index of right answer */
+const CHOICE = [
+ {t:1,q:'She ___ a student.',o:['is','are','am'],a:0},
+ {t:1,q:'They ___ my friends.',o:['is','are','am'],a:1},
+ {t:1,q:'I ___ from Iraq.',o:['am','is','are'],a:0},
+ {t:1,q:'There ___ a book on the table.',o:['are','is','am'],a:1},
+ {t:1,q:'There ___ two cats in the garden.',o:['is','am','are'],a:2},
+ {t:1,q:'Which word is a color?',o:['green','chair','happy'],a:0},
+ {t:1,q:'What do you use to open a door?',o:['a key','a spoon','a hat'],a:0},
+ {t:1,q:'He ___ a red car.',o:['have','has','having'],a:1},
+ {t:2,q:'She ___ a book now.',o:['is reading','reads','read'],a:0},
+ {t:2,q:'The boys ___ football in the park.',o:['is playing','are playing','plays'],a:1},
+ {t:2,q:'I go to school ___ bus.',o:['on','by','in'],a:1},
+ {t:2,q:'The cat is ___ the chair.',o:['on','at','by the'],a:0},
+ {t:2,q:'My mother ___ breakfast every morning.',o:['cook','cooks','cooking'],a:1},
+ {t:2,q:'Which one is opposite of "big"?',o:['small','tall','long'],a:0},
+ {t:2,q:'___ apple is red.',o:['A','An','The an'],a:1},
+ {t:2,q:'How ___ brothers do you have?',o:['much','many','long'],a:1},
+ {t:3,q:'Yesterday I ___ to the beach.',o:['go','went','going'],a:1},
+ {t:3,q:'We ___ pizza last night.',o:['eat','ate','eating'],a:1},
+ {t:3,q:'She ___ her grandmother tomorrow.',o:['visit','visited','is going to visit'],a:2},
+ {t:3,q:'I would like ___ glass of water.',o:['a','an','some a'],a:0},
+ {t:3,q:'It was raining, ___ we stayed at home.',o:['so','but','or'],a:0},
+ {t:3,q:'He is ___ than his brother.',o:['tall','taller','tallest'],a:1}
+];
+
+/* Sentences for "Build the sentence" */
+const BUILD = [
+ {t:1,s:'I like pizza'},{t:1,s:'My dog is big'},{t:1,s:'She is my friend'},{t:1,s:'The cat is on the chair'},{t:1,s:'We eat bread every day'},{t:1,s:'He has a red car'},
+ {t:2,s:'He is reading a book in the park'},{t:2,s:'There are two birds in the tree'},{t:2,s:'I go to school by bus'},{t:2,s:'My mother is cooking dinner now'},{t:2,s:'They are playing football today'},{t:2,s:'The girl is wearing a red jacket'},
+ {t:3,s:'Yesterday I walked to the beach with my friends'},{t:3,s:'I would like a glass of water please'},{t:3,s:'She is going to visit her grandmother tomorrow'},{t:3,s:'It was raining so we stayed at home'},{t:3,s:'Can you tell me where the hospital is'}
+];
+
+/* Words that sound almost the same (Listen and choose, tier 2 and 3) */
+const SOUND = [['ship','sheep'],['three','tree'],['bed','bad'],['live','leave'],['full','fool'],['cat','cut'],['pen','pan'],['beach','peach'],['light','right'],['walk','work'],['hair','here'],['week','weak']];
+
+/* Everyday talk */
+const TALK = [
+ {t:1,q:'What is your name?',model:'My name is Rahand.'},
+ {t:1,q:'Where do you live?',model:'I live in Erbil.'},
+ {t:1,q:'What food do you like?',model:'I like rice and chicken.'},
+ {t:1,q:'What color do you like?',model:'I like blue.'},
+ {t:1,q:'Do you have a brother or a sister?',model:'Yes, I have a brother.'},
+ {t:2,q:'What do you do in the morning?',model:'I wake up at seven. I drink tea and go to work.'},
+ {t:2,q:'What is your favorite day of the week? Why?',model:'My favorite day is Friday because I can relax.'},
+ {t:2,q:'What is the weather like today?',model:'It is sunny and warm today.'},
+ {t:2,q:'What are you doing now?',model:'I am playing an English game.'},
+ {t:3,q:'What did you do yesterday?',model:'Yesterday I worked and then I met my friend.'},
+ {t:3,q:'What are you going to do this weekend?',model:'I am going to visit my family.'},
+ {t:3,q:'Tell me about your best friend.',model:'My best friend is kind and funny. We play football together.'}
+];
+
+/* A2 words used by the spelling check (plus every word found in the scenes and banks above) */
+const CORE = ('a about above after again all also always am an and animal any are around as at baby back bad bag be beach because bed before behind '+
+'best big bird birthday black blue boat book boy bread breakfast brother brown building bus busy but buy by cake call can car cat chair child children city '+
+'clean clock close coffee cold color come cook cool could cup dad dark day dinner do doctor dog door down drink drive eat egg end enjoy evening every '+
+'everything eye face family far fast father favorite feel few find fine first fish flower food foot for friend from front fruit fun garden girl give glass go '+
+'good great green grow had hair half hand happy hard has hat have he head healthy hear help her here high him his home hot hour house how hungry hurt '+
+'i if in into is it its jacket jeans job juice just key kind kitchen know lake large last late learn leave left let life light like listen little live long look lot love '+
+'lunch make man many may me meet milk mine minute money month moon more morning mother mountain mouth move much music my name near need new next nice night no '+
+'noisy not now of off often old on one only open or orange other our out over page park people phone photo picture place plate play please pretty put quiet rain '+
+'read red relax rice right river road room run sad same say school sea see she shoes shop short should show sick sing sister sit sleep slow small smile snow so some '+
+'something sometimes soon speak spring stand star start stop street strong student study summer sun sunny sweet swim table take talk tall tea teacher tell that the '+
+'their them then there these they thing think this three time to today together tomorrow too town tree try turn two under until up us use very visit wait wake walk '+
+'want warm was wash watch water way we wear weather week well went were what when where which white who why will window winter with woman work world would write '+
+'year yellow yes yesterday you young your zero seven eight nine ten eleven twelve twenty thirty hundred first second third four five six pink purple grey gray '+
+'jacket sofa wall road bridge hill sky cloud wind storm shirt dress skirt trousers coat scarf gloves socks pants bench fence path flowers grass bus car bike train plane '+
+'ship taxi truck street traffic sidewalk market shop store hospital library bank museum restaurant hotel airport station park beach mountain lake river forest desert '+
+'laugh smiling cry angry tired excited scared surprised worried proud lonely calm peaceful relaxed comfortable delicious tasty yummy healthy sweet sour salty hot '+
+'cheese butter rice chicken meat soup salad tomato potato onion carrot banana apple orange lemon grape cherry sandwich pizza burger sugar salt pepper chocolate '+
+'it\'s don\'t doesn\'t i\'m isn\'t aren\'t can\'t there\'s that\'s he\'s she\'s what\'s let\'s they\'re we\'re you\'re didn\'t wasn\'t weren\'t i\'d i\'ll i\'ve won\'t').split(/\s+/);
+
+/* Achievements. check(S) gets the saved state. */
+const ACHIEVEMENTS = [
+ {id:'first',em:'📸',name:'First photo',desc:'Finish one photo quest',check:s=>s.stats.photos>=1},
+ {id:'photo5',em:'🖼️',name:'Photo pro',desc:'Finish 5 photo quests',check:s=>s.stats.photos>=5},
+ {id:'perfect',em:'💯',name:'Perfect answer',desc:'Get 95 or more on one answer',check:s=>s.stats.perfect>=1},
+ {id:'words10',em:'📒',name:'Word starter',desc:'Save 10 words',check:s=>s.notebook.length>=10},
+ {id:'words30',em:'📚',name:'Word collector',desc:'Save 30 words',check:s=>s.notebook.length>=30},
+ {id:'games25',em:'🎮',name:'Game master',desc:'Get 25 game answers right',check:s=>s.stats.gameOk>=25},
+ {id:'ears',em:'👂',name:'Good listener',desc:'Listen to 20 words',check:s=>s.stats.heard>=20},
+ {id:'streak3',em:'🔥',name:'3-day streak',desc:'Play 3 days in a row',check:s=>s.best>=3},
+ {id:'streak7',em:'🌟',name:'7-day streak',desc:'Play 7 days in a row',check:s=>s.best>=7},
+ {id:'lvl5',em:'🚀',name:'Level 5',desc:'Reach level 5',check:s=>levelOf(s.xp).level>=5},
+ {id:'rich',em:'🪙',name:'Coin collector',desc:'Earn 200 coins',check:s=>s.stats.coinsEarned>=200},
+ {id:'talk',em:'💬',name:'Good talker',desc:'Finish 3 teacher chats',check:s=>s.stats.chats>=3}
+];
+
+/* Daily challenge pool. ev = event that adds progress. */
+const DAILY_POOL = [
+ {id:'d_photo',ev:'photo',goal:1,text:'Finish 1 photo quest',xp:40,coins:20},
+ {id:'d_game',ev:'game',goal:10,text:'Get 10 game answers right',xp:30,coins:15},
+ {id:'d_save',ev:'save',goal:3,text:'Save 3 new words',xp:25,coins:15},
+ {id:'d_listen',ev:'listen',goal:6,text:'Listen to 6 words',xp:20,coins:10},
+ {id:'d_good',ev:'good',goal:1,text:'Get 80 or more on a photo answer',xp:35,coins:20},
+ {id:'d_build',ev:'build',goal:3,text:'Build 3 sentences',xp:25,coins:15},
+ {id:'d_chat',ev:'chat',goal:1,text:'Finish a chat with Teacher Pip',xp:30,coins:15}
+];
+
+const TIPS = [
+ 'Use "There is" for one thing and "There are" for many things.',
+ 'Say "I can see..." to start describing a photo.',
+ 'Use "is + verb-ing" to say what is happening now: She is reading.',
+ 'Use "a" before a consonant sound and "an" before a vowel sound: a dog, an egg.',
+ 'Colors go before the noun: a red car, not a car red.',
+ 'Say new words out loud. Your mouth learns them too.',
+ 'Small steps are good. Five minutes every day is better than one long day.'
+];
+/* ---------- Helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const el=h=>{const t=document.createElement('template');t.innerHTML=h.trim();return t.content.firstElementChild};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pad=n=>String(n).padStart(2,'0');
+const dkey=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>dkey(new Date());
+const daysAgo=n=>{const d=new Date();d.setDate(d.getDate()-n);return d};
+
+/* ---------- Saved progress (this browser only) ---------- */
+const KEY='pip-english-quest-v1';
+function fresh(){return {xp:0,coins:0,streak:0,best:0,lastDay:'',sound:true,notebook:[],ach:{},daily:null,week:{},
+  stats:{photos:0,answers:0,scoreSum:0,gameOk:0,gameTotal:0,heard:0,perfect:0,coinsEarned:0,chats:0},seen:[]}}
+function load(){const f=fresh();try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);Object.assign(f,o);f.stats=Object.assign(fresh().stats,o.stats||{})}}catch(e){}return f}
+let S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+function xpNeed(l){return 100+(l-1)*60}
+function levelOf(xp){let l=1,left=xp;while(left>=xpNeed(l)){left-=xpNeed(l);l++}return {level:l,into:left,need:xpNeed(l)}}
+/* Difficulty: starts at tier 1 (A2 beginner). Goes up slowly with level and good answers. */
+function tier(){const L=levelOf(S.xp).level;const acc=S.stats.gameTotal>=10?S.stats.gameOk/S.stats.gameTotal:.7;
+  if(L>=6&&acc>=.7)return 3;if(L>=3&&acc>=.6)return 2;return 1}
+
+function touchDay(){const t=today();if(S.lastDay===t)return;
+  S.streak=(S.lastDay===dkey(daysAgo(1)))?S.streak+1:1;S.lastDay=t;S.best=Math.max(S.best,S.streak)}
+
+/* ---------- Daily challenges ---------- */
+function ensureDaily(){const t=today();if(S.daily&&S.daily.date===t)return;
+  let seed=0;for(const c of t)seed=(seed*31+c.charCodeAt(0))>>>0;
+  const rest=DAILY_POOL.slice(1).map(p=>[p,(seed=(seed*1103515245+12345)>>>0)]).sort((a,b)=>a[1]-b[1]).slice(0,2).map(x=>x[0]);
+  S.daily={date:t,items:[DAILY_POOL[0],...rest].map(p=>({id:p.id,prog:0,done:false}))};save()}
+function bump(ev,n=1){ensureDaily();let finished=null;
+  S.daily.items.forEach(it=>{const p=DAILY_POOL.find(x=>x.id===it.id);if(p.ev===ev&&!it.done){it.prog=Math.min(p.goal,it.prog+n);if(it.prog>=p.goal){it.done=true;finished=p}}});
+  save();if(finished){toast('Daily challenge done!');setTimeout(()=>gain(finished.xp,finished.coins,finished.text),700)}}
+
+/* ---------- Rewards ---------- */
+function gain(xp=0,coins=0,label=''){touchDay();const before=levelOf(S.xp).level;
+  S.xp+=xp;S.coins+=coins;S.stats.coinsEarned+=coins;S.week[today()]=(S.week[today()]||0)+xp;
+  Object.keys(S.week).sort().slice(0,-14).forEach(k=>delete S.week[k]);
+  const after=levelOf(S.xp).level;save();renderHud();
+  if(xp||coins){toast('+'+xp+' XP'+(coins?'   +'+coins+' coins':'')+(label?'   '+label:''));if(coins)sfx('coin')}
+  checkAch();if(after>before)levelUp(after)}
+function checkAch(){ACHIEVEMENTS.forEach(a=>{if(!S.ach[a.id]&&a.check(S)){S.ach[a.id]=today();save();toast(a.em+' New badge: '+a.name);sfx('done')}})}
+function levelUp(l){sfx('up');confetti();
+  showModal('<div style="font-size:3.5rem">🚀</div><h2>Level '+l+'!</h2><p>You are getting better. Keep going.</p><button class="btn yellow big" data-close>Continue</button>')}
+
+/* ---------- Toast, modal, confetti ---------- */
+function toast(t){const z=$('#toasts');if(!z)return;const n=el('<div class="toast"></div>');n.textContent=t;z.append(n);while(z.children.length>3)z.firstChild.remove();setTimeout(()=>n.remove(),2600)}
+function showModal(html,onClose){const root=$('#modal-root');const m=el('<div class="modal" role="dialog" aria-modal="true"><div class="card">'+html+'</div></div>');
+  const close=()=>{m.remove();onClose&&onClose()};
+  m.addEventListener('click',e=>{if(e.target===m||e.target.closest('[data-close]'))close()});
+  root.append(m);const b=$('[data-close]',m);b&&b.focus();return {el:m,close}}
+function confetti(){const c=$('#confetti');if(!c||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  c.hidden=false;c.width=innerWidth;c.height=innerHeight;const x=c.getContext('2d');
+  const cols=['#FFC83D','#2F6BFF','#12A163','#E8432F','#7B45F0'];
+  const P=Array.from({length:90},()=>({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:-Math.random()*13-3,r:Math.random()*6+4,c:rnd(cols),a:Math.random()*6}));
+  let f=0;(function tick(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.4;p.a+=.2;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);x.restore()});
+    if(++f<110)requestAnimationFrame(tick);else{x.clearRect(0,0,c.width,c.height);c.hidden=true}})()}
+
+/* ---------- Sound effects (made in the browser, no files) ---------- */
+let AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});return AC}
+function tone(f,t0,d,type='sine',v=.12){const a=ac();if(!a)return;const o=a.createOscillator(),g=a.createGain(),t=a.currentTime+t0;
+  o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05)}
+const SFX={ok:()=>{tone(523,0,.12);tone(784,.1,.22)},bad:()=>{tone(220,0,.2,'sawtooth',.06);tone(165,.12,.25,'sawtooth',.06)},
+  coin:()=>{tone(988,0,.08,'square',.04);tone(1319,.08,.2,'square',.04)},tap:()=>tone(660,0,.05,'triangle',.07),
+  up:()=>[523,659,784,1046].forEach((f,i)=>tone(f,i*.11,.26)),done:()=>[392,523,659].forEach((f,i)=>tone(f,i*.09,.18))};
+function sfx(n){if(S.sound&&SFX[n])try{SFX[n]()}catch(e){}}
+
+/* ---------- Pronunciation (the browser reads English aloud) ---------- */
+let VOICE=null;
+function pickVoice(){const v=('speechSynthesis' in window?speechSynthesis.getVoices():[])||[];
+  VOICE=v.find(x=>/^en[-_]US/i.test(x.lang)&&/female|samantha|google|zira|aria|jenny/i.test(x.name))||v.find(x=>/^en[-_]US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function say(text,slow){
+  if(!('speechSynthesis' in window)){toast('This browser cannot read English aloud.');return false}
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';if(VOICE)u.voice=VOICE;u.rate=slow?.7:.88;speechSynthesis.speak(u)}catch(e){toast('Sound did not start. Tap again.');return false}
+  S.stats.heard++;save();bump('listen');checkAch();return true}
+
+/* ---------- Voice answers (microphone) ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function listen(onText,onState){
+  if(!SR){toast('Voice typing is not in this browser. Use the microphone key on your phone keyboard.');return null}
+  let r;try{r=new SR()}catch(e){toast('Voice typing is not available here.');return null}
+  r.lang='en-US';r.interimResults=true;r.maxAlternatives=1;
+  r.onresult=e=>{let t='';for(const x of e.results)t+=x[0].transcript;onText(t)};
+  r.onerror=e=>{onState('off');toast(e.error==='not-allowed'||e.error==='service-not-allowed'?'The microphone is blocked here. Use the microphone key on your keyboard.':'I could not hear you. Try again.')};
+  r.onend=()=>onState('off');
+  try{r.start();onState('on')}catch(e){onState('off')}
+  return r}
+
+/* ---------- Spelling and grammar check (works offline) ---------- */
+const DICT=new Set();
+function addDict(s){(String(s).toLowerCase().match(/[a-z']+/g)||[]).forEach(w=>DICT.add(w))}
+CORE.forEach(addDict);
+Object.values(SCENES).forEach(sc=>{addDict(sc.title);sc.qs.forEach(q=>{addDict(q.q);addDict(q.model);q.need.flat().forEach(addDict)});addDict(sc.free.model);sc.free.words.forEach(addDict);sc.vocab.forEach(v=>{addDict(v.w);addDict(v.m);addDict(v.ex)})});
+WORDS.forEach(x=>{addDict(x.w);addDict(x.m);addDict(x.s.replace('___',''))});
+CHOICE.forEach(c=>{addDict(c.q);c.o.forEach(addDict)});BUILD.forEach(b=>addDict(b.s));TALK.forEach(t=>{addDict(t.q);addDict(t.model)});SOUND.flat().forEach(addDict);
+
+function known(w){if(DICT.has(w))return true;const c=[];
+  if(w.endsWith('s'))c.push(w.slice(0,-1));if(w.endsWith('es'))c.push(w.slice(0,-2));if(w.endsWith('ies'))c.push(w.slice(0,-3)+'y');
+  if(w.endsWith('ed')){c.push(w.slice(0,-2),w.slice(0,-1));if(/(.)\1ed$/.test(w))c.push(w.slice(0,-3))}
+  if(w.endsWith('ing')){c.push(w.slice(0,-3),w.slice(0,-3)+'e');if(/(.)\1ing$/.test(w))c.push(w.slice(0,-4))}
+  if(w.endsWith('ly'))c.push(w.slice(0,-2));
+  if(/(er|est)$/.test(w))c.push(w.replace(/(er|est)$/,''),w.replace(/(er|est)$/,'e'));
+  if(w.endsWith("'s"))c.push(w.slice(0,-2));
+  return c.some(x=>x.length>1&&DICT.has(x))}
+function dist(a,b,max){if(Math.abs(a.length-b.length)>max)return 9;let p=Array.from({length:b.length+1},(_,i)=>i);
+  for(let i=1;i<=a.length;i++){const c=[i];let m=i;for(let j=1;j<=b.length;j++){c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));m=Math.min(m,c[j])}if(m>max)return 9;p=c}return p[b.length]}
+const isSub=(a,b)=>{let i=0;for(const c of b)if(c===a[i])i++;return i===a.length};
+const isSwap=(a,b)=>{if(a.length!==b.length)return false;let i=0;while(i<a.length&&a[i]===b[i])i++;return i<a.length-1&&a[i]===b[i+1]&&a[i+1]===b[i]&&a.slice(i+2)===b.slice(i+2)};
+function suggest(w){const max=w.length>=7?2:1;let best=null,bk=99;
+  for(const d of DICT){if(d.length<3||d.includes("'"))continue;let k=dist(w,d,max);if(k>max&&isSwap(w,d))k=1;if(k>max)continue;
+    const key=k*10+(isSub(w,d)?0:3)+(d[0]===w[0]?0:2)+(d.length===w.length?0:1);if(key<bk){bk=key;best=d}}
+  return best}
+
+const VERBS='read sit stand walk play eat drink run smile look wear hold talk sleep cook ride swim fish wait laugh work write watch listen stay rest relax carry drive dance sing enjoy'.split(' ');
+const ING_SP={sit:'sitting',run:'running',swim:'swimming',stop:'stopping',get:'getting',put:'putting',have:'having',make:'making',take:'taking',come:'coming',use:'using',write:'writing',ride:'riding',drive:'driving',dance:'dancing',smile:'smiling',leave:'leaving'};
+const ing=v=>ING_SP[v]||(/e$/.test(v)&&!/ee$/.test(v)?v.slice(0,-1)+'ing':v+'ing');
+const VB=VERBS.join('|'), INGB=VERBS.map(ing).join('|');
+const COLORS='red|blue|green|yellow|orange|white|black|brown|pink|purple|grey|gray';
+const THINGS='door|roof|bus|car|dog|cat|house|jacket|dress|bag|shirt|hat|ball|apple|juice|water|sky|tree|bench|book';
+const PLURALS='trees|flowers|windows|birds|cars|people|buildings|mountains|animals|eggs|dogs|cats|friends|children|books|boats|houses|clouds';
+const keepCase=(from,to)=>/^[A-Z]/.test(from)?to[0].toUpperCase()+to.slice(1):to;
+const MIS={tre:'tree',teh:'the',hte:'the',hav:'have',lik:'like',dgo:'dog',cta:'cat',bok:'book',hom:'home',hoem:'home',whit:'white',gren:'green',bule:'blue',wich:'which',wiht:'with',becuase:'because',becouse:'because',freinds:'friends'};
+const RULES=[
+ {re:/\bi\b(?!['’])/g,fn:()=>'I',why:'Write "I" with a capital letter.'},
+ {re:/\bi(['’](?:m|ll|ve|d))\b/gi,fn:(m,s)=>'I'+s,why:'Write "I" with a capital letter.'},
+ {re:/\b(he|she|it)\s+(?:are|am)\b/gi,fn:(m,a)=>a+' is',why:'After he, she or it, use "is".'},
+ {re:/\b(they|we|you)\s+(?:is|am)\b/gi,fn:(m,a)=>a+' are',why:'After they, we or you, use "are".'},
+ {re:/\bI\s+(?:is|are)\b/g,fn:()=>'I am',why:'After "I", use "am".'},
+ {re:/\bthere\s+is\s+(two|three|four|five|six|seven|many|some|several|a lot of|\d+)\b/gi,fn:(m,a)=>'there are '+a,why:'For many things, say "there are".'},
+ {re:new RegExp('\\bthere\\s+is\\s+((?:\\w+\\s+)?(?:'+PLURALS+'))\\b','gi'),fn:(m,a)=>'there are '+a,why:'For many things, say "there are".'},
+ {re:/\bthere\s+are\s+(a|an|one)\b/gi,fn:(m,a)=>'there is '+a,why:'For one thing, say "there is".'},
+ {re:new RegExp('\\b('+PLURALS+')\\s+is\\b','gi'),fn:(m,a)=>a+' are',why:'For many things, use "are".'},
+ {re:new RegExp('\\b(in the (?:picture|photo|image)),?\\s+have\\b','gi'),fn:(m,a)=>a+' there is',why:'Say "there is" or "there are" to show what is in a place.'},
+ {re:new RegExp('\\b(he|she|it)\\s+('+VB+')\\b(?!\\s*(?:s|ing))','gi'),fn:(m,a,v)=>a+' is '+ing(v.toLowerCase()),why:'To say what is happening now, use "is" + verb-ing.'},
+ {re:new RegExp('\\b(is|are)\\s+('+VB+')\\b','gi'),fn:(m,b,v)=>b+' '+ing(v.toLowerCase()),why:'After "is" or "are", the verb ends with -ing.'},
+ {re:new RegExp('\\b(he|she|it)\\s+('+INGB+')\\b','gi'),fn:(m,a,v)=>a+' is '+v,why:'Add "is" before a verb with -ing.'},
+ {re:new RegExp('\\b(they|we)\\s+('+INGB+')\\b','gi'),fn:(m,a,v)=>a+' are '+v,why:'Add "are" before a verb with -ing.'},
+ {re:new RegExp('\\bI\\s+('+INGB+')\\b','g'),fn:(m,v)=>'I am '+v,why:'Add "am" before a verb with -ing.'},
+ {re:/\b(he|she|it)\s+(like|love|want|need|live)\b/gi,fn:(m,a,v)=>a+' '+v+'s',why:'After he, she or it, the verb ends with -s.'},
+ {re:/\b(he|she|it)\s+go\b/gi,fn:(m,a)=>a+' goes',why:'After he, she or it, say "goes".'},
+ {re:/\b(he|she|it)\s+have\b/gi,fn:(m,a)=>a+' has',why:'After he, she or it, use "has".'},
+ {re:/\b(he|she|it)\s+(?:don't|dont)\b/gi,fn:(m,a)=>a+" doesn't",why:'After he, she or it, use "doesn\'t".'},
+ {re:/\bI\s+has\b/g,fn:()=>'I have',why:'After "I", use "have".'},
+ {re:/\b(they|we|you)\s+has\b/gi,fn:(m,a)=>a+' have',why:'After they, we or you, use "have".'},
+ {re:/\b(a)\s+((?!uni|use|one|eur|ukr)[aeiou]\w*)/gi,fn:(m,a,w)=>keepCase(a,'an')+' '+w,why:'Use "an" before a vowel sound.'},
+ {re:/\b(an)\s+((?!hour|honest|heir)[bcdfghjklmnpqrstvwxyz]\w*)/gi,fn:(m,a,w)=>keepCase(a,'a')+' '+w,why:'Use "a" before a consonant sound.'},
+ {re:new RegExp('\\b(the|a|an|her|his|my)\\s+('+THINGS+')\\s+('+COLORS+')\\b(?=\\s*[.!?]|\\s*$)','gi'),fn:(m,d,n,c)=>d+' '+n+' is '+c,why:'Say "the door is blue". Use "is" to say the color.'},
+ {re:new RegExp('\\b(the|a|an|her|his|my)\\s+('+THINGS+')\\s+('+COLORS+')\\b','gi'),fn:(m,d,n,c)=>d+' '+c+' '+n,why:'In English, the color comes before the thing: a red car.'},
+ {re:/\bpeoples\b/gi,fn:()=>'people',why:'"People" is already plural.'},
+ {re:/\bchilds\b/gi,fn:()=>'children',why:'The plural of "child" is "children".'},
+ {re:/\bmans\b/gi,fn:()=>'men',why:'The plural of "man" is "men".'},
+ {re:/\bwomans\b/gi,fn:()=>'women',why:'The plural of "woman" is "women".'},
+ {re:/\bcan\s+to\s+/gi,fn:()=>'can ',why:'After "can", do not use "to".'},
+ {re:/\bI\s+am\s+(like|love|have|see|want|think|agree|need)\b/g,fn:(m,v)=>'I '+v,why:'Do not use "am" before this verb.'}
+];
+function checkText(text,opt={}){
+  const res={orig:text.trim(),fixed:text.trim(),changes:[],score:0,notes:[],ai:false};
+  let t=res.orig;if(!t)return res;
+  const add=(from,to,why,type)=>res.changes.push({from,to,why,type});
+  // spelling
+  t=t.replace(/[A-Za-z']+/g,(w,i,all)=>{const l=w.toLowerCase().replace(/’/g,"'");
+    if(MIS[l]){const f=keepCase(w,MIS[l]);add(w,f,'Check the spelling: it is "'+MIS[l]+'".','spelling');return f}
+    if(l.length<4||known(l))return w;
+    const prev=all.slice(0,i).trim();if(/^[A-Z]/.test(w)&&prev&&!/[.!?]$/.test(prev))return w;
+    const s=suggest(l);if(!s)return w;const fixed=keepCase(w,s);add(w,fixed,'Check the spelling: it is "'+s+'".','spelling');return fixed});
+  // grammar
+  RULES.forEach(R=>{t=t.replace(R.re,(...a)=>{const m=a[0],r=R.fn(...a);if(r!==m)add(m,r,R.why,'grammar');return r})});
+  // capital letters and full stop
+  t=t.replace(/\s+/g,' ').replace(/\s+([,.!?])/g,'$1').trim();
+  const cap=t.replace(/(^|[.!?]\s+)([a-z])/g,(m,p,c)=>p+c.toUpperCase());
+  if(cap!==t){add('','','Start every sentence with a capital letter.','caps');t=cap}
+  if(!/[.!?]$/.test(t)){t+='.';add('','','Put a full stop (.) at the end.','punct')}
+  res.fixed=t;
+  // score
+  const n=(res.orig.match(/[A-Za-z']+/g)||[]).length;const lw=' '+t.toLowerCase().replace(/[^a-z' ]/g,' ')+' ';
+  const has=w=>lw.includes(' '+w+' ')||lw.includes(' '+w+'s ');
+  let content=40;
+  if(opt.freeWords){const hit=new Set(opt.freeWords.filter(has)).size;content=Math.min(1,hit/5)*40;res.hit=hit}
+  else if(opt.need&&opt.need.length){const hit=opt.need.filter(g=>g.some(has)).length;content=Math.min(1,hit/(opt.min||1))*40;res.hit=hit}
+  const minW=opt.minWords||(opt.freeWords?12:4);
+  const effort=n>=minW?30:n>=Math.ceil(minW/2)?18:6;
+  const pen=res.changes.reduce((s,c)=>s+(c.type==='caps'||c.type==='punct'?.5:1),0);
+  const grammar=Math.max(0,30-pen*7);
+  let sc=content+effort+grammar;
+  const sentences=(t.match(/[.!?]/g)||[]).length;
+  if(opt.freeWords&&sentences<2){sc-=10;res.notes.push('Try to write 2 or 3 sentences.')}
+  if(n<2)sc=Math.min(sc,45);
+  if(content<40*.99&&opt.tip)res.notes.push(opt.tip);
+  if(n<minW&&!opt.freeWords)res.notes.push('Try a full sentence.'+(opt.model?' For example: "'+opt.model+'"':''));
+  res.score=Math.max(0,Math.min(100,Math.round(sc)));
+  return res}
+
+/* Word-by-word difference between what you wrote and the fixed sentence */
+function diffHtml(a,b){const x=a.split(/\s+/).filter(Boolean),y=b.split(/\s+/).filter(Boolean);
+  const L=Array.from({length:x.length+1},()=>Array(y.length+1).fill(0));
+  for(let i=x.length-1;i>=0;i--)for(let j=y.length-1;j>=0;j--)L[i][j]=x[i]===y[j]?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
+  let i=0,j=0,out='';
+  while(i<x.length||j<y.length){if(i<x.length&&j<y.length&&x[i]===y[j]){out+=esc(x[i])+' ';i++;j++}
+    else if(j<y.length&&(i===x.length||L[i][j+1]>=L[i+1][j])){out+='<ins>'+esc(y[j])+'</ins> ';j++}
+    else{out+='<del>'+esc(x[i])+'</del> ';i++}}
+  return out.trim()}
+
+/* ---------- AI teacher (asks Claude when the page is allowed to) ---------- */
+const AI={state:'unknown',fn:null,images:false};
+async function initAI(){try{const s=window.claude&&await window.claude.use('sample');if(s){AI.fn=s;AI.state='ready';try{const l=await s.limits();AI.images=!!(l&&l.images)}catch(e){}}else AI.state='off'}catch(e){AI.state='off'}}
+function aiOff(e){return e&&['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed','session_expired'].includes(e.code)}
+async function grade(text,q,ctx){
+  const local=checkText(text,q);
+  if(!text.trim()||AI.state!=='ready')return local;
+  const prompt='You are Pip, a kind English teacher for an A2 beginner. Check the learner\'s answer.\n'+
+   'Picture: '+(ctx.desc||'(a photo the learner chose)')+'\nQuestion: '+q.q+'\nLearner\'s answer: "'+text.replace(/"/g,"'")+'"\n\n'+
+   'Reply with only JSON like {"corrected":"...","mistakes":[{"wrong":"...","right":"...","why":"..."}],"score":85,"comment":"..."}\n'+
+   'Rules: "corrected" is the learner\'s answer with grammar and spelling fixed, using the same meaning and simple A2 words (the same text if it is already correct). '+
+   'Each "why" is very simple English, at most 12 words. At most 4 mistakes. "comment" is one friendly sentence of at most 14 words in simple English. '+
+   'score is 0 to 100: 40 for answering the question about the picture, 30 for grammar and spelling, 30 for a complete sentence. If the answer does not match the picture, say so in the comment and lower the score.'+
+   (ctx.image?'\nThe learner\'s photo is attached.':'');
+  try{const o={modelTier:'quick'};if(ctx.image&&AI.images)o.images=ctx.image;
+    const j=await AI.fn.json(prompt,o);
+    if(!j||typeof j.corrected!=='string'||typeof j.score!=='number')return local;
+    const fixed=j.corrected.trim()||text.trim();
+    return {orig:text.trim(),fixed,score:Math.max(0,Math.min(100,Math.round(j.score))),ai:true,notes:j.comment?[String(j.comment)]:[],
+      changes:(Array.isArray(j.mistakes)?j.mistakes:[]).slice(0,4).map(m=>({from:String(m.wrong||''),to:String(m.right||''),why:String(m.why||''),type:'ai'}))}
+  }catch(e){if(aiOff(e)){AI.state='off';toast('Pip is checking with the offline teacher now.')}return local}}
+/* ---------- Icons and mascot ---------- */
+const SV=(p,x='')=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" '+x+'>'+p+'</svg>';
+const IC={
+ home:SV('<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'),
+ camera:SV('<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>'),
+ game:SV('<rect x="2.5" y="7" width="19" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="15.5" cy="11.5" r=".8"/><circle cx="18" cy="14" r=".8"/>'),
+ chat:SV('<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>'),
+ book:SV('<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>'),
+ chart:SV('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),
+ speaker:SV('<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6"/>'),
+ mute:SV('<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/>'),
+ mic:SV('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>'),
+ coin:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#FFC83D" stroke="currentColor" stroke-width="2.5"/><circle cx="12" cy="12" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+ flame:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-4 3-7 1 1 2 2 3-5z" fill="#FF7A1A" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 22a3 3 0 0 1-3-3c0-2 3-3 3-6 2 2 3 4 3 6a3 3 0 0 1-3 3z" fill="#FFC83D"/></svg>'
+};
+function pip(mood,cls){mood=mood||'happy';
+  const eyes=mood==='cheer'?'<path d="M31 47q7-9 14 0M55 47q7-9 14 0" stroke="#13213C" stroke-width="4" fill="none" stroke-linecap="round"/>'
+   :'<circle cx="38" cy="46" r="12" fill="#fff" stroke="#13213C" stroke-width="3.5"/><circle cx="62" cy="46" r="12" fill="#fff" stroke="#13213C" stroke-width="3.5"/><circle cx="'+(mood==='think'?41:39)+'" cy="'+(mood==='think'?43:47)+'" r="5" fill="#13213C"/><circle cx="'+(mood==='think'?65:61)+'" cy="'+(mood==='think'?43:47)+'" r="5" fill="#13213C"/>';
+  return '<svg class="'+(cls||'mascot')+'" viewBox="0 0 100 100" role="img" aria-label="Pip the owl teacher">'+
+   '<path d="M20 64q-10 14 6 26M80 64q10 14-6 26" stroke="#13213C" stroke-width="4" fill="#2457D6" stroke-linecap="round"/>'+
+   '<ellipse cx="50" cy="62" rx="33" ry="30" fill="#2F6BFF" stroke="#13213C" stroke-width="4"/><ellipse cx="50" cy="73" rx="21" ry="17" fill="#DCE8FF"/>'+
+   eyes+'<polygon points="44,55 56,55 50,66" fill="#FFC83D" stroke="#13213C" stroke-width="3" stroke-linejoin="round"/>'+
+   '<polygon points="18,30 50,17 82,30 50,42" fill="#13213C"/><path d="M82 30v14" stroke="#FFC83D" stroke-width="3"/><circle cx="82" cy="46" r="3.5" fill="#FFC83D"/>'+
+   '<path d="M40 91v4M60 91v4" stroke="#FFC83D" stroke-width="5" stroke-linecap="round"/></svg>'}
+
+/* ---------- HUD, tabs, router ---------- */
+const curStreak=()=>(S.lastDay===today()||S.lastDay===dkey(daysAgo(1)))?S.streak:0;
+function renderHud(){const L=levelOf(S.xp),h=$('#hud');if(!h)return;
+  h.innerHTML='<div class="brand">'+pip('happy')+'<span>Pip English Quest</span></div>'+
+   '<div class="lvl"><span class="lvl-badge">Lv '+L.level+'</span><div class="bar" role="progressbar" aria-label="XP to next level" aria-valuemin="0" aria-valuemax="'+L.need+'" aria-valuenow="'+L.into+'"><i style="width:'+(L.into/L.need*100)+'%"></i></div><span class="num muted" style="font-size:.9rem">'+L.into+'/'+L.need+'</span></div>'+
+   '<div class="stat" title="Coins">'+IC.coin+'<span class="num">'+S.coins+'</span></div>'+
+   '<div class="stat" title="Days in a row">'+IC.flame+'<span class="num">'+curStreak()+'</span></div>'+
+   '<button class="sound-btn" id="snd" aria-label="'+(S.sound?'Turn sound off':'Turn sound on')+'">'+(S.sound?IC.speaker:IC.mute)+'</button>';
+  $('#snd').onclick=()=>{S.sound=!S.sound;save();renderHud();if(S.sound)sfx('tap')}}
+const TABS=[['home','Home','home'],['photo','Photos','camera'],['games','Games','game'],['teacher','Teacher','chat'],['words','Words','book'],['stats','Stats','chart']];
+let current='home';const CLEAN=[];
+function renderTabs(){$('#tabs').innerHTML=TABS.map(t=>'<button class="tab" data-go="'+t[0]+'"'+(t[0]===current?' aria-current="page"':'')+'>'+IC[t[2]]+'<span>'+t[1]+'</span></button>').join('')}
+function view(html){const v=$('#view');v.innerHTML='<div class="screen">'+html+'</div>';return v.firstElementChild}
+function go(name,arg){current=name;try{'speechSynthesis' in window&&speechSynthesis.cancel()}catch(e){}
+  CLEAN.splice(0).forEach(f=>{try{f()}catch(e){}});renderTabs();
+  ({home:renderHome,photo:renderPhoto,games:renderGames,teacher:renderTeacher,words:renderWords,stats:renderStats})[name](arg);window.scrollTo({top:0})}
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){sfx('tap');go(g.dataset.go,g.dataset.arg||undefined)}});
+
+/* ---------- Notebook helpers ---------- */
+function addWord(v){if(S.notebook.some(x=>x.w.toLowerCase()===v.w.toLowerCase()))return false;
+  S.notebook.push({w:v.w,em:v.em||'📝',m:v.m||'',ex:v.ex||''});save();bump('save');gain(5,2,'new word');return true}
+const wordCard=(v,saved)=>'<div class="word"><div class="w"><span class="em">'+esc(v.em||'📝')+'</span>'+esc(v.w)+
+  '<button class="btn small" data-say="'+esc(v.w)+'" aria-label="Hear '+esc(v.w)+'">'+IC.speaker+'</button></div><div>'+esc(v.m)+'</div><div class="ex">“'+esc(v.ex)+'”</div>'+
+  '<button class="btn small '+(saved?'':'yellow')+'" data-save="'+esc(v.w)+'"'+(saved?' disabled':'')+'>'+(saved?'✓ In notebook':'+ Save word')+'</button></div>';
+document.addEventListener('click',e=>{const s=e.target.closest('[data-say]');if(s){say(s.dataset.say,e.shiftKey)}});
+
+/* ---------- Home ---------- */
+function renderHome(){ensureDaily();const L=levelOf(S.xp);const t=tier();
+  const daily=S.daily.items.map(it=>{const p=DAILY_POOL.find(x=>x.id===it.id);return '<div class="daily'+(it.done?' done':'')+'"><div class="chk">'+(it.done?'✓':'')+'</div><div class="stack" style="gap:4px"><div>'+esc(p.text)+'</div><div class="bar yellow" style="height:12px"><i style="width:'+(it.prog/p.goal*100)+'%"></i></div></div><div class="pill num">'+it.prog+'/'+p.goal+'</div></div>'}).join('');
+  const badges=ACHIEVEMENTS.slice(0,6).map(a=>'<div class="ach'+(S.ach[a.id]?' on':'')+'"><div class="e">'+a.em+'</div><b>'+esc(a.name)+'</b><small>'+esc(a.desc)+'</small></div>').join('');
+  view('<div class="hero card yellow">'+pip(S.stats.photos?'cheer':'happy')+'<div class="stack"><div class="bubble"><b>Hello! I am Pip, your English teacher.</b><br>'+esc(rnd(TIPS))+'</div>'+
+   '<div class="row"><button class="btn primary big" data-go="photo">'+IC.camera+' Describe a photo</button><button class="btn big" data-go="games">'+IC.game+' Play a game</button></div></div></div>'+
+   '<div class="grid g2">'+
+    '<div class="card"><div class="row spread"><h2>Today’s challenges</h2><span class="pill">Level '+L.level+' · '+(t===1?'Easy':t===2?'Medium':'Harder')+'</span></div><div class="stack" style="gap:0;margin-top:8px">'+daily+'</div></div>'+
+    '<div class="stack">'+
+     '<button class="card blue mode" data-go="photo"><div class="ico">📸</div><h3>Photo quest</h3><p>Look at a photo. Say what you see. Get your score.</p></button>'+
+     '<button class="card plum mode" data-go="teacher"><div class="ico">💬</div><h3>Talk with Teacher Pip</h3><p>One question at a time. Pip helps you fix mistakes.</p></button>'+
+    '</div></div>'+
+   '<div class="grid g2"><button class="card green mode" data-go="words"><div class="ico">📒</div><h3>My word notebook</h3><p>'+S.notebook.length+' words saved. Tap a word to hear it.</p></button>'+
+   '<button class="card mode" data-go="games"><div class="ico">🎮</div><h3>7 mini-games</h3><p>Pictures, listening, sentences and more.</p></button></div>'+
+   '<div class="card"><div class="row spread"><h2>Badges</h2><button class="btn small" data-go="stats">See all</button></div><div class="ach-grid" style="margin-top:12px">'+badges+'</div></div>')}
+
+/* ---------- Word notebook ---------- */
+function renderWords(){
+  const v=view('<div><div class="eyebrow">My words</div><h1>Word notebook</h1></div>'+
+   (S.notebook.length?'<div class="row"><input type="text" id="q" placeholder="Search your words" aria-label="Search your words" style="flex:1 1 220px"><button class="btn yellow" id="prac"'+(S.notebook.length<4?' disabled title="Save 4 words first"':'')+'>Practice my words</button></div><div class="card" id="list"></div>'
+    :'<div class="card yellow stack" style="align-items:flex-start"><div class="row">'+pip('think','mascot" style="width:72px;height:72px')+'<h2>No words yet</h2></div><p>Finish a photo quest and tap “Save word” to fill your notebook.</p><button class="btn primary" data-go="photo">Start a photo quest</button></div>'));
+  if(!S.notebook.length)return;
+  const draw=()=>{const f=$('#q',v).value.trim().toLowerCase();const items=S.notebook.filter(x=>!f||x.w.toLowerCase().includes(f)||x.m.toLowerCase().includes(f));
+    $('#list',v).innerHTML=items.length?items.map(x=>'<div class="nb-row"><div class="em">'+esc(x.em)+'</div><div><b style="font-family:var(--f-display);font-size:1.15rem">'+esc(x.w)+'</b> <span class="muted">'+esc(x.m)+'</span><div class="muted" style="font-size:.95rem">“'+esc(x.ex)+'”</div></div><div class="row" style="flex-wrap:nowrap"><button class="btn small" data-say="'+esc(x.w)+'" aria-label="Hear '+esc(x.w)+'">'+IC.speaker+'</button><button class="btn small" data-del="'+esc(x.w)+'" aria-label="Remove '+esc(x.w)+'">✕</button></div></div>').join(''):'<p class="muted">No word found.</p>'};
+  draw();$('#q',v).oninput=draw;
+  v.addEventListener('click',e=>{const d=e.target.closest('[data-del]');if(d){S.notebook=S.notebook.filter(x=>x.w!==d.dataset.del);save();draw();sfx('tap')}});
+  $('#prac',v).onclick=()=>go('games','review')}
+
+/* ---------- Progress ---------- */
+function renderStats(){const L=levelOf(S.xp),st=S.stats;
+  const avg=st.answers?Math.round(st.scoreSum/st.answers):0,acc=st.gameTotal?Math.round(st.gameOk/st.gameTotal*100):0;
+  const days=Array.from({length:7},(_,i)=>{const d=daysAgo(6-i);return {l:['Su','Mo','Tu','We','Th','Fr','Sa'][d.getDay()],x:S.week[dkey(d)]||0}});
+  const mx=Math.max(20,...days.map(d=>d.x));
+  const tile=(n,l)=>'<div class="card"><div class="big">'+n+'</div><div class="muted">'+l+'</div></div>';
+  const v=view('<div><div class="eyebrow">Progress</div><h1>Level '+L.level+'</h1></div>'+
+   '<div class="card blue"><div class="row spread"><b>'+L.into+' / '+L.need+' XP to level '+(L.level+1)+'</b><span class="num">'+S.xp+' XP in total</span></div><div class="bar" style="margin-top:10px;height:22px"><i style="width:'+(L.into/L.need*100)+'%"></i></div></div>'+
+   '<div class="stats">'+tile(st.photos,'photo quests done')+tile(avg+'<small style="font-size:1rem">/100</small>','average answer score')+tile(S.notebook.length,'words saved')+tile(acc+'%','game answers right')+tile(S.best,'best days in a row')+tile(S.coins,'coins')+'</div>'+
+   '<div class="card"><h2>XP this week</h2><div class="week" style="margin-top:14px">'+days.map(d=>'<div><span class="num">'+(d.x||'')+'</span><i style="height:'+Math.max(4,d.x/mx*88)+'px"></i><span class="muted">'+d.l+'</span></div>').join('')+'</div></div>'+
+   '<div class="card"><h2>Badges</h2><div class="ach-grid" style="margin-top:12px">'+ACHIEVEMENTS.map(a=>'<div class="ach'+(S.ach[a.id]?' on':'')+'"><div class="e">'+a.em+'</div><b>'+esc(a.name)+'</b><small>'+esc(a.desc)+'</small></div>').join('')+'</div></div>'+
+   '<div class="card red" id="reset"><h2>Start again</h2><p>This deletes your level, coins, words and badges in this browser.</p><div class="row" style="margin-top:10px"><button class="btn red" id="r1">Restart game</button></div></div>');
+  $('#r1',v).onclick=()=>{$('#reset',v).innerHTML='<h2>Are you sure?</h2><p>You will lose all your progress. This cannot be undone.</p><div class="row" style="margin-top:10px"><button class="btn red" id="r2">Yes, delete everything</button><button class="btn" id="r3">No, keep my progress</button></div>';
+    $('#r3',v).onclick=()=>renderStats();$('#r2',v).onclick=()=>{S=fresh();save();renderHud();toast('Game restarted. Good luck!');go('home')}}}
+/* ---------- Photo quest ---------- */
+let Q=null;
+const GENERIC_QS=[
+ {k:'see',q:'What can you see in the picture?',need:[],model:'',tip:'Start with "I can see..." or "There is a ...".'},
+ {k:'doing',q:'What is the person (or the animal) doing?',need:[],model:'',tip:'Use "is" + verb with -ing: She is walking.'},
+ {k:'where',q:'Where are they?',need:[],model:'',tip:'Use "in", "on" or "at": in a park, on a bench, at home.'},
+ {k:'color',q:'What colors can you see?',need:[],model:'',tip:'Say: "I can see red, blue and white."'},
+ {k:'feel',q:'How does the person feel? Or how does the place feel?',need:[],model:'',tip:'Words: happy, tired, calm, busy, quiet.'}
+];
+function startQuest(id,file){
+  if(file){const url=URL.createObjectURL(file);CLEAN.push(()=>{});
+    Q={own:true,url,ctx:{desc:'a photo chosen by the learner (see the attached image)',image:file},qs:GENERIC_QS.map(q=>Object.assign({minWords:4},q)).concat([{k:'free',q:'Now describe the whole photo. Write 2 or 3 sentences.',need:[],model:'',freeWords:null,minWords:12,tip:'Say what you see, what people are doing and where they are.'}])}}
+  else{const sc=SCENES[id];
+    Q={own:false,scene:sc,ctx:{desc:sc.alt+'. It is a drawing (not a real photo).'},
+       qs:sc.qs.map(q=>Object.assign({minWords:4},q)).concat([{k:'free',q:sc.free.q,need:[],model:sc.free.model,freeWords:sc.free.words,minWords:12,tip:'Use "I can see...", "There is...", "She is ...-ing".'}])}}
+  Q.i=0;Q.tries=0;Q.best=[];Q.said=[];Q.answers=[];
+  S.seen=(S.seen||[]).concat(id||[]).slice(-3);save();renderPhoto()}
+
+function renderPhoto(arg){
+  if(arg==='again')Q=null;
+  if(Q&&Q.done)Q=null;
+  if(Q)return renderQuest();
+  const cards=SCENE_ORDER.map(id=>{const s=SCENES[id];return '<button class="card mode" data-pick="'+id+'" style="padding:10px"><div class="scene" style="box-shadow:none">'+s.svg()+'</div><div class="row spread"><h3>'+esc(s.title)+'</h3><span class="pill">'+esc(s.tag)+'</span></div></button>'}).join('');
+  const v=view('<div><div class="eyebrow">Photo quest</div><h1>Describe a photo</h1><p class="muted" style="margin-top:6px">Look at the picture. Answer 6 small questions in English. Pip checks your grammar and spelling and gives you a score.</p></div>'+
+   '<div class="row"><button class="btn primary big" id="rand">🎲 Show me a random photo</button>'+
+   '<label class="btn big" for="file" tabindex="0" id="up">📷 Use my own photo</label><input class="hidden-file" type="file" accept="image/*" id="file" aria-label="Choose a photo from your device"></div>'+
+   '<p class="muted" style="font-size:.95rem">These pictures are drawings. For a real photo, choose one from your phone or computer. Pip can look at your photo when the AI teacher is on.</p>'+
+   '<div class="grid g3">'+cards+'</div>');
+  $('#rand',v).onclick=()=>{sfx('tap');const pool=SCENE_ORDER.filter(x=>!(S.seen||[]).includes(x));startQuest(rnd(pool.length?pool:SCENE_ORDER))};
+  v.addEventListener('click',e=>{const p=e.target.closest('[data-pick]');if(p){sfx('tap');startQuest(p.dataset.pick)}});
+  const f=$('#file',v);f.onchange=()=>{if(f.files[0]){if(!/^image\//.test(f.files[0].type)){toast('Please choose an image file.');return}sfx('tap');startQuest(null,f.files[0])}};
+  $('#up',v).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();f.click()}}}
+
+function renderQuest(){
+  const total=Q.qs.length;
+  const pic=Q.own?'<img src="'+Q.url+'" alt="The photo you chose">':Q.scene.svg();
+  const steps=Q.qs.map((_,i)=>'<i class="'+(i<Q.i?'ok':i===Q.i?'on':'')+'"></i>').join('');
+  const help=(!Q.own)?'<div class="card blue"><div class="row spread"><b>Helpful words</b><span class="muted" style="font-size:.9rem">tap to hear and add</span></div><div class="chips" style="margin-top:8px">'+Q.scene.free.words.map(w=>'<button class="chip" data-w="'+esc(w)+'">'+esc(w)+'</button>').join('')+'</div></div>'
+    :'<div class="card blue"><b>Your own photo</b><p style="margin-top:4px">'+(AI.state==='ready'?'The AI teacher can look at your photo and check your answers.':'The AI teacher is off, so Pip checks your grammar and spelling only.')+'</p></div>';
+  const v=view('<div class="row spread"><button class="btn small" id="quit">← Back</button><div class="steps" style="flex:1;min-width:140px">'+steps+'</div></div>'+
+   '<div class="quest"><div class="stack"><div class="scene">'+pic+'</div>'+help+'</div><div class="stack" id="qp"></div></div>');
+  $('#quit',v).onclick=()=>{Q=null;go('photo')};
+  v.addEventListener('click',e=>{const c=e.target.closest('[data-w]');if(!c)return;say(c.dataset.w);const ta=$('#ans');if(ta&&!ta.disabled){ta.value=(ta.value.replace(/\s+$/,'')+' '+c.dataset.w).trim()+' ';ta.focus()}});
+  ask()}
+
+function ask(prefill){
+  const q=Q.qs[Q.i],qp=$('#qp');
+  qp.innerHTML='<div class="card"><div class="stack"><div class="qbox">'+pip('happy','mini')+'<div><div class="eyebrow">Question '+(Q.i+1)+' of '+Q.qs.length+'</div><div class="qtext">'+esc(q.q)+'</div></div></div>'+
+   '<div class="row"><button class="btn small" id="hear">'+IC.speaker+' Listen</button><button class="btn small" id="slow">🐢 Slow</button></div>'+
+   '<div class="bubble" style="font-size:.97rem"><b>Pip’s tip:</b> '+esc(q.tip||'Write a full sentence.')+'</div>'+
+   '<textarea id="ans" rows="3" placeholder="Type your answer in English" aria-label="Your answer"></textarea>'+
+   '<div class="row"><button class="btn" id="mic" aria-label="Speak your answer">'+IC.mic+' Speak</button><button class="btn green big" id="check" style="flex:1">Check my answer</button></div>'+
+   '<div class="muted" id="micnote" style="font-size:.9rem" hidden></div></div></div>';
+  const ta=$('#ans');if(prefill)ta.value=prefill;ta.focus({preventScroll:true});
+  $('#hear').onclick=()=>say(q.q);$('#slow').onclick=()=>say(q.q,true);
+  let rec=null;const mic=$('#mic');
+  CLEAN.push(()=>{try{rec&&rec.stop()}catch(e){}});
+  mic.onclick=()=>{if(rec){try{rec.stop()}catch(e){}rec=null;return}
+    const base=ta.value.trim();rec=listen(t=>{ta.value=(base+' '+t).trim()},s=>{mic.classList.toggle('listening',s==='on');if(s==='off')rec=null});
+    if(!rec){const n=$('#micnote');n.hidden=false;n.textContent='Tip: on a phone, use the microphone key on your keyboard to speak.'}};
+  ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))$('#check').click()});
+  $('#check').onclick=async()=>{const text=ta.value.trim();if(!text){toast('Write or say your answer first.');ta.focus();return}
+    try{rec&&rec.stop()}catch(e){}
+    const b=$('#check');b.disabled=true;b.innerHTML='Pip is checking…';ta.disabled=true;
+    const ctx=Object.assign({},Q.ctx);const res=await grade(text,Object.assign({},q,{freeWords:q.freeWords||null}),ctx);
+    Q.best[Q.i]=Math.max(Q.best[Q.i]||0,res.score);Q.answers[Q.i]=res.score>=(Q.best[Q.i]||0)?res:Q.answers[Q.i];
+    feedback(res)}}
+
+function feedback(res){
+  const q=Q.qs[Q.i],qp=$('#qp'),sc=res.score,last=Q.i===Q.qs.length-1;
+  const praise=sc>=90?'Excellent!':sc>=75?'Very good!':sc>=55?'Good try!':'Nice start!';
+  sfx(sc>=70?'ok':'tap');if(sc>=90)confetti();
+  const mist=res.changes.length?'<ul style="margin:4px 0 0;padding-left:20px">'+res.changes.map(c=>'<li>'+((c.from&&c.to)?'<del>'+esc(c.from)+'</del> → <ins>'+esc(c.to)+'</ins> ':'')+esc(c.why||'')+'</li>').join('')+'</ul>':'<div>No mistakes. Great work!</div>';
+  const fixedHtml=diffHtml(res.orig,res.fixed).replace(/<del>.*?<\/del>\s*/g,'');
+  const canRetry=sc<85&&Q.tries<2;
+  qp.innerHTML='<div class="card"><div class="stack"><div class="row"><div class="ring" style="--p:'+sc+'"><span>'+sc+'</span></div><div class="stack" style="gap:4px;flex:1;min-width:160px"><div class="qtext">'+praise+'</div>'+
+   '<div class="muted">'+esc((res.notes&&res.notes[0])||'')+'</div>'+(res.ai?'<span class="pill" style="align-self:flex-start">AI teacher</span>':'')+'</div></div>'+
+   '<div class="fb"><div class="line orig"><b>You wrote</b>'+esc(res.orig)+'</div>'+
+   '<div class="line fix"><b>Correct sentence</b>'+fixedHtml+' <button class="btn small" id="sayfix" aria-label="Hear the correct sentence">'+IC.speaker+'</button></div>'+
+   '<div class="line why"><b>Why</b>'+mist+'</div></div>'+
+   (q.model&&sc<90?'<div class="bubble" style="font-size:.97rem"><b>A good answer:</b> “'+esc(q.model)+'” <button class="btn small" id="saymod" aria-label="Hear the good answer">'+IC.speaker+'</button></div>':'')+
+   '<div class="row">'+(canRetry?'<button class="btn" id="again">Try again</button>':'')+'<button class="btn primary big" id="next" style="flex:1">'+(last?'See my score →':'Next question →')+'</button></div></div></div>';
+  $('#sayfix').onclick=()=>say(res.fixed);const sm=$('#saymod');if(sm)sm.onclick=()=>say(q.model);
+  const ag=$('#again');if(ag)ag.onclick=()=>{Q.tries++;ask(res.orig)};
+  $('#next').onclick=()=>{Q.tries=0;sfx('tap');if(last){finishQuest()}else{Q.i++;renderQuest()}}}
+
+function finishQuest(){
+  const n=Q.qs.length,sum=Q.best.reduce((a,b)=>a+b,0),avg=Math.round(sum/n);
+  Q.avg=avg;Q.done=true;Q.xp=Q.best.reduce((a,b)=>a+Math.round(b/10),0)+20;Q.coins=Math.round(avg/10)+5;
+  S.stats.photos++;S.stats.answers+=n;S.stats.scoreSum+=sum;if(Q.best.some(b=>b>=95))S.stats.perfect++;save();
+  sfx('done');if(avg>=80)confetti();
+  gain(Q.xp,Q.coins,'photo quest');bump('photo');if(Q.best.some(b=>b>=80))bump('good');
+  Q.words=Q.own?null:Q.scene.vocab.slice();renderSummary()}
+
+async function renderSummary(){
+  const praise=Q.avg>=90?'Amazing!':Q.avg>=75?'Great job!':Q.avg>=55?'Good work!':'Nice start!';
+  const rows=Q.qs.map((q,i)=>{const a=Q.answers[i];return '<div class="nb-row" style="grid-template-columns:1fr auto auto"><div><div class="muted" style="font-size:.9rem">'+esc(q.q)+'</div><div>'+esc(a?a.fixed:'')+'</div></div><span class="pill num">'+(Q.best[i]||0)+'</span><button class="btn small" data-say="'+esc(a?a.fixed:'')+'" aria-label="Hear this sentence">'+IC.speaker+'</button></div>'}).join('');
+  const model=Q.own?'':'<div class="card plum"><h3>A good description of this picture</h3><p style="margin-top:6px">“'+esc(Q.scene.free.model)+'” <button class="btn small" data-say="'+esc(Q.scene.free.model)+'" aria-label="Hear the description">'+IC.speaker+'</button></p></div>';
+  const v=view('<div class="card yellow"><div class="row" style="gap:18px"><div class="ring" style="--p:'+Q.avg+'"><span>'+Q.avg+'</span></div><div class="stack" style="gap:6px;flex:1;min-width:180px"><div class="eyebrow">Your score</div><h1>'+praise+'</h1>'+
+   '<div class="row"><span class="pill num">+'+Q.xp+' XP</span><span class="pill num">+'+Q.coins+' coins</span></div></div>'+pip(Q.avg>=75?'cheer':'happy','mascot')+'</div></div>'+
+   '<div class="card"><h2>Your answers</h2><div style="margin-top:6px">'+rows+'</div></div>'+model+
+   '<div><h2>New words</h2><p class="muted" style="margin:4px 0 12px">Tap the speaker to hear a word. Save the words you want to remember.</p><div id="wl" class="words"></div></div>'+
+   '<div class="row"><button class="btn primary big" id="more">🎲 Another photo</button><button class="btn big" data-go="home">Home</button></div>');
+  $('#more',v).onclick=()=>{Q=null;go('photo');$('#rand').click()};
+  const wl=$('#wl',v);
+  const drawWords=()=>{wl.innerHTML=(Q.words||[]).map(w=>wordCard(w,S.notebook.some(x=>x.w.toLowerCase()===w.w.toLowerCase()))).join('')};
+  v.addEventListener('click',e=>{const b=e.target.closest('[data-save]');if(!b)return;const w=(Q.words||[]).find(x=>x.w===b.dataset.save);if(w&&addWord(w))drawWords()});
+  if(Q.words){drawWords();return}
+  // own photo: ask the AI for new words, or give a basic list
+  wl.innerHTML='<div class="word">Pip is looking for new words for your photo…</div>';
+  let words=null;
+  if(AI.state==='ready'){try{
+    const used=Q.answers.map(a=>a&&a.fixed).join(' ').slice(0,600);
+    const o={modelTier:'quick'};if(Q.ctx.image&&AI.images)o.images=Q.ctx.image;
+    const j=await AI.fn.json('Look at the learner\'s photo. Reply with only a JSON array of 4 objects {"w":"word","em":"one emoji","m":"very simple meaning, at most 8 words","ex":"short example sentence, at most 8 words"}. Choose new A2-level English words about this photo. Do not use these words, the learner already wrote them: '+used,o);
+    if(Array.isArray(j))words=j.filter(x=>x&&x.w&&x.m).slice(0,5).map(x=>({w:String(x.w),em:String(x.em||'📝'),m:String(x.m),ex:String(x.ex||'')}))}catch(e){if(aiOff(e))AI.state='off'}}
+  Q.words=(words&&words.length)?words:[{w:'picture',em:'🖼️',m:'a photo or a drawing',ex:'I like this picture.'},{w:'background',em:'🌄',m:'the part behind the main thing',ex:'There are trees in the background.'},{w:'wearing',em:'👕',m:'having clothes on your body',ex:'She is wearing a blue dress.'},{w:'smiling',em:'😊',m:'showing happiness with your mouth',ex:'The boy is smiling.'}];
+  if(current==='photo'&&Q&&Q.done)drawWords()}
+/* ---------- Mini-games ---------- */
+const GAME_LIST=[
+ {id:'picture',name:'Guess the word',em:'🖼️',desc:'See a picture. Choose the English word.',c:'blue',rounds:8},
+ {id:'choose',name:'Choose the answer',em:'✅',desc:'Pick the right word or sentence.',c:'green',rounds:8},
+ {id:'fill',name:'Missing word',em:'✏️',desc:'Complete the sentence.',c:'yellow',rounds:8},
+ {id:'match',name:'Match the meaning',em:'🔗',desc:'Match each word with its meaning.',c:'plum',rounds:2},
+ {id:'build',name:'Build a sentence',em:'🧩',desc:'Put the words in the right order.',c:'blue',rounds:5},
+ {id:'listen',name:'Listen and choose',em:'👂',desc:'Hear a word. Choose what you heard.',c:'green',rounds:8},
+ {id:'talk',name:'Everyday questions',em:'💬',desc:'Answer a simple question about your life.',c:'yellow',rounds:4}
+];
+let G=null;
+function renderGames(arg){
+  if(arg&&(arg==='review'||GAME_LIST.some(g=>g.id===arg)))return startGame(arg);
+  const t=tier();
+  view('<div><div class="eyebrow">Mini-games</div><h1>Pick a game</h1><p class="muted" style="margin-top:6px">Your level: <b>'+(t===1?'Easy':t===2?'Medium':'Harder')+'</b>. The games get harder slowly when you answer well.</p></div>'+
+   '<div class="grid g3">'+GAME_LIST.map(g=>'<button class="card '+g.c+' mode" data-go="games" data-arg="'+g.id+'"><div class="ico">'+g.em+'</div><h3>'+g.name+'</h3><p>'+g.desc+'</p></button>').join('')+'</div>');
+}
+function startGame(id){
+  const def=id==='review'?{id:'review',name:'Word review',rounds:Math.min(6,S.notebook.length)}:GAME_LIST.find(g=>g.id===id);
+  if(id==='review'&&S.notebook.length<4){toast('Save 4 words first.');return go('words')}
+  G={id,def,round:0,total:def.rounds,ok:0,tier:tier(),used:new Set()};
+  const v=view('<div class="row"><button class="btn small" id="gq">← Games</button><div class="bar blue" style="flex:1;min-width:120px"><i id="gp" style="width:0"></i></div><span class="pill num" id="gs">0 right</span></div>'+
+   '<div class="card"><div class="eyebrow" style="margin-bottom:10px">'+esc(def.name)+'</div><div id="gb" class="stack" style="gap:16px"></div></div><div class="row" id="gf"></div>');
+  $('#gq',v).onclick=()=>go('games');nextRound()}
+function nextRound(){if(G.round>=G.total)return finishGame();G.round++;
+  $('#gp').style.width=((G.round-1)/G.total*100)+'%';$('#gf').innerHTML='';const b=$('#gb');b.innerHTML='';GAME_FN[G.id](b)}
+function answered(ok){G.ok+=ok?1:0;S.stats.gameTotal++;if(ok){S.stats.gameOk++;bump('game')}save();sfx(ok?'ok':'bad');
+  $('#gs').textContent=G.ok+' right';$('#gp').style.width=(G.round/G.total*100)+'%';
+  $('#gf').innerHTML='<button class="btn primary big" id="gn" style="flex:1">'+(G.round>=G.total?'See my score →':'Next →')+'</button>';const n=$('#gn');n.onclick=nextRound;n.focus();checkAch()}
+function finishGame(){const pct=Math.round(G.ok/G.total*100),xp=G.ok*4+10,coins=G.ok+(pct===100?5:0);
+  sfx('done');if(pct===100)confetti();gain(xp,coins,'game');
+  const t=pct===100?'Perfect!':pct>=70?'Great job!':pct>=40?'Good try!':'Keep practicing!';
+  view('<div class="card yellow"><div class="row" style="gap:18px"><div class="ring" style="--p:'+pct+'"><span>'+pct+'</span></div><div class="stack" style="gap:6px;flex:1;min-width:180px"><div class="eyebrow">'+esc(G.def.name)+'</div><h1>'+t+'</h1><p>'+G.ok+' of '+G.total+' right.</p><div class="row"><span class="pill num">+'+xp+' XP</span><span class="pill num">+'+coins+' coins</span></div></div>'+pip(pct>=70?'cheer':'happy')+'</div></div>'+
+   '<div class="row"><button class="btn primary big" data-go="games" data-arg="'+G.id+'">Play again</button><button class="btn big" data-go="games">Other games</button><button class="btn big" data-go="home">Home</button></div>')}
+
+/* helpers */
+function pickWords(n,filter){const pool=WORDS.filter(w=>w.t<=G.tier&&!G.used.has(w.w)&&(!filter||filter(w)));
+  const p=shuffle(pool.length>=n?pool:WORDS.filter(w=>!filter||filter(w))).slice(0,n);p.forEach(w=>G.used.add(w.w));return p}
+function others(w,n){return shuffle(WORDS.filter(x=>x.w!==w.w&&x.t<=Math.max(G.tier,2))).slice(0,n)}
+function optsHtml(list){return '<div class="opts">'+list.map((o,i)=>'<button class="opt" data-i="'+i+'">'+esc(o.text)+'</button>').join('')+'</div>'}
+function wireOpts(b,list,after){$$('.opt',b).forEach(btn=>btn.onclick=()=>{const i=+btn.dataset.i,ok=list[i].ok;
+  $$('.opt',b).forEach((x,j)=>{x.disabled=true;if(list[j].ok)x.classList.add('correct');else if(j===i)x.classList.add('wrong')});
+  after&&after(ok);answered(ok)})}
+
+const GAME_FN={
+ picture(b){const w=pickWords(1)[0];const list=shuffle([{text:w.w,ok:true},...others(w,3).map(x=>({text:x.w,ok:false}))]);
+  b.innerHTML='<div class="sentence">What is this?</div><div class="bigpic" aria-label="A picture">'+w.em+'</div>'+optsHtml(list);
+  wireOpts(b,list,ok=>{if(ok)say(w.w)})},
+ choose(b){
+  if(Math.random()<.4){const w=pickWords(1)[0];const list=shuffle([{text:w.w,ok:true},...others(w,2).map(x=>({text:x.w,ok:false}))]);
+    b.innerHTML='<div class="sentence">Which word means:<br>“'+esc(w.m)+'”?</div>'+optsHtml(list);wireOpts(b,list,ok=>{if(ok)say(w.w)});return}
+  const pool=CHOICE.filter(c=>c.t<=G.tier&&!G.used.has(c.q));const c=rnd(pool.length?pool:CHOICE);G.used.add(c.q);
+  const list=shuffle(c.o.map((t,i)=>({text:t,ok:i===c.a})));
+  b.innerHTML='<div class="sentence">'+esc(c.q)+'</div>'+optsHtml(list);
+  wireOpts(b,list,ok=>{const full=c.q.includes('___')?c.q.replace('___',c.o[c.a]):'';if(full)say(full)})},
+ fill(b){const w=pickWords(1,x=>x.s.includes('___'))[0];const sent=w.s.replace('___','<span class="blank" id="bl">&nbsp;&nbsp;&nbsp;</span>');
+  const done=ok=>{$('#bl').textContent=w.w;$('#bl').style.color=ok?'var(--green)':'var(--red)';say(w.s.replace('___',w.w))};
+  if(G.tier===1){const list=shuffle([{text:w.w,ok:true},...others(w,3).map(x=>({text:x.w,ok:false}))]);
+    b.innerHTML='<div class="sentence">'+sent+'</div>'+optsHtml(list);wireOpts(b,list,done);return}
+  b.innerHTML='<div class="sentence">'+sent+'</div><div class="bigpic" style="font-size:3rem;padding:6px" title="Hint">'+w.em+'</div><div class="row"><input type="text" id="fi" placeholder="Type the missing word" aria-label="Missing word" autocomplete="off" autocapitalize="off" style="flex:1 1 200px"><button class="btn green" id="fc">Check</button></div>';
+  const inp=$('#fi',b);inp.focus();const go1=()=>{const ok=inp.value.trim().toLowerCase()===w.w;inp.disabled=true;$('#fc').disabled=true;done(ok);answered(ok)};
+  $('#fc',b).onclick=go1;inp.onkeydown=e=>{if(e.key==='Enter'&&inp.value.trim())go1()}},
+ match(b){const ws=pickWords(5);let sel=null,done=0,miss=0;
+  const L=shuffle(ws),R=shuffle(ws);
+  b.innerHTML='<div class="sentence">Tap a word. Then tap its meaning.</div><div class="match"><div class="stack">'+L.map(w=>'<button class="opt" data-l="'+w.w+'">'+w.em+' '+w.w+'</button>').join('')+'</div><div class="stack">'+R.map(w=>'<button class="opt" data-r="'+w.w+'">'+esc(w.m)+'</button>').join('')+'</div></div>';
+  b.addEventListener('click',e=>{const l=e.target.closest('[data-l]'),r=e.target.closest('[data-r]');
+    if(l&&!l.classList.contains('done')){$$('[data-l]',b).forEach(x=>x.classList.remove('sel'));l.classList.add('sel');sel=l;say(l.dataset.l);return}
+    if(r&&sel&&!r.classList.contains('done')){if(sel.dataset.l===r.dataset.r){sel.classList.remove('sel');sel.classList.add('done');r.classList.add('done');sel=null;sfx('ok');
+        if(++done===5){answered(miss<=2)}}
+      else{miss++;sfx('bad');r.classList.add('wrong');setTimeout(()=>r.classList.remove('wrong'),400)}}})},
+ build(b){const pool=BUILD.filter(x=>x.t<=G.tier&&!G.used.has(x.s));const it=rnd(pool.length?pool:BUILD);G.used.add(it.s);
+  const words=it.s.split(' ');let order;do{order=shuffle(words.map((w,i)=>({w,id:i})))}while(order.map(o=>o.w).join(' ')===it.s&&words.length>1);
+  let placed=[];
+  b.innerHTML='<div class="sentence">Put the words in order.</div><div class="slot tiles" id="sl" aria-label="Your sentence"></div><div class="tiles" id="po"></div><div class="row"><button class="btn small" id="sp">'+IC.speaker+' Hear it</button><button class="btn green" id="bc" style="flex:1" disabled>Check</button></div>';
+  const draw=()=>{$('#sl',b).innerHTML=placed.map(o=>'<button class="tile" data-un="'+o.id+'">'+esc(o.w)+'</button>').join('')||'<span class="muted">Tap the words below</span>';
+    $('#po',b).innerHTML=order.filter(o=>!placed.includes(o)).map(o=>'<button class="tile" data-in="'+o.id+'">'+esc(o.w)+'</button>').join('');$('#bc',b).disabled=placed.length!==words.length};
+  draw();let locked=false;
+  b.addEventListener('click',e=>{if(locked)return;const i=e.target.closest('[data-in]'),u=e.target.closest('[data-un]');
+    if(i){placed.push(order.find(o=>o.id==+i.dataset.in));sfx('tap');draw()}if(u){placed=placed.filter(o=>o.id!=+u.dataset.un);sfx('tap');draw()}});
+  $('#sp',b).onclick=()=>say(it.s);
+  $('#bc',b).onclick=()=>{locked=true;const ok=placed.map(o=>o.w).join(' ')===it.s;$('#bc',b).disabled=true;
+    $('#sl',b).style.borderColor=ok?'var(--green)':'var(--red)';
+    if(!ok)b.insertAdjacentHTML('beforeend','<div class="card green"><b>Correct sentence:</b> '+esc(it.s)+'.</div>');
+    else bump('build');say(it.s);answered(ok)}},
+ listen(b){let w,list;
+  if(G.tier>=2&&Math.random()<.5){const pr=rnd(SOUND);const ans=rnd(pr);w={w:ans,em:'',m:''};
+    list=shuffle([...pr.map(t=>({text:t,ok:t===ans})),...shuffle(WORDS.filter(x=>!pr.includes(x.w))).slice(0,2).map(x=>({text:x.w,ok:false}))])}
+  else{w=pickWords(1)[0];list=shuffle([{text:w.w,ok:true},...others(w,3).map(x=>({text:x.w,ok:false}))])}
+  b.innerHTML='<div class="sentence">Listen. What word do you hear?</div><div class="row" style="justify-content:center"><button class="btn big yellow" id="p1">'+IC.speaker+' Play</button><button class="btn big" id="p2">🐢 Slow</button></div>'+optsHtml(list);
+  $('#p1',b).onclick=()=>say(w.w);$('#p2',b).onclick=()=>say(w.w,true);setTimeout(()=>say(w.w),150);
+  wireOpts(b,list,()=>{if(w.em)b.insertAdjacentHTML('beforeend','<div class="bubble">'+w.em+' <b>'+esc(w.w)+'</b>: '+esc(w.m)+'</div>')})},
+ talk(b){const pool=TALK.filter(x=>x.t<=G.tier&&!G.used.has(x.q));const q=rnd(pool.length?pool:TALK);G.used.add(q.q);
+  b.innerHTML='<div class="qbox">'+pip('happy','mini')+'<div class="qtext">'+esc(q.q)+'</div></div><div class="row"><button class="btn small" id="hq">'+IC.speaker+' Listen</button></div><textarea id="ta" rows="2" placeholder="Write your answer in English" aria-label="Your answer"></textarea><div class="row"><button class="btn green big" id="tc" style="flex:1">Check</button></div><div id="tf"></div>';
+  $('#hq',b).onclick=()=>say(q.q);const ta=$('#ta',b);ta.focus();
+  $('#tc',b).onclick=async()=>{const text=ta.value.trim();if(!text){toast('Write your answer first.');return}
+    const btn=$('#tc',b);btn.disabled=true;btn.textContent='Pip is checking…';ta.disabled=true;
+    const r=await grade(text,{q:q.q,need:[],minWords:3,model:q.model,tip:'Answer with a full sentence.'},{desc:'An everyday question. No picture.'});
+    const ok=r.score>=60;btn.remove();
+    $('#tf',b).innerHTML='<div class="fb"><div class="line fix"><b>Correct sentence</b>'+esc(r.fixed)+'</div>'+(r.changes.length?'<div class="line why"><b>Why</b>'+r.changes.slice(0,3).map(c=>esc(c.why||'')).join(' ')+'</div>':'')+'<div class="row"><span class="pill num">'+r.score+' / 100</span><span class="muted">'+esc((r.notes&&r.notes[0])||'')+'</span></div></div>';
+    sfx(ok?'ok':'bad');answered(ok)}},
+ review(b){const pool=S.notebook.filter(x=>!G.used.has(x.w));const w=rnd(pool.length?pool:S.notebook);G.used.add(w.w);
+  const wrong=shuffle(S.notebook.filter(x=>x.w!==w.w)).slice(0,3);const list=shuffle([{text:w.w,ok:true},...wrong.map(x=>({text:x.w,ok:false}))]);
+  b.innerHTML='<div class="sentence">'+w.em+'<br>Which word means:<br>“'+esc(w.m)+'”?</div>'+optsHtml(list);wireOpts(b,list,ok=>{if(ok)say(w.w)})}
+};
+/* ---------- Teacher Pip (chat) ---------- */
+const TEACHER_RULES='You are Pip, a friendly English teacher for an A2 beginner. Always use very simple English: short sentences and easy words. '+
+ 'Ask ONE question at a time and wait for the answer. After each answer: if there is a mistake, write the correct sentence, explain the mistake in one easy sentence, and ask the learner to try again. '+
+ 'Do not move to a new question until they have tried again. If the answer is correct, praise in a few words and ask the next question. '+
+ 'Topics: daily life, family, food, hobbies, home, the city. Keep every reply under 45 words. If you use a hard word, explain it. Do not use lists, headings or markdown.';
+let T=null;
+function newChat(){const qs=shuffle(TALK.filter(t=>t.t<=tier())).slice(0,5);
+  T={turns:[],mode:AI.state==='ready'?'ai':'local',qs,qi:0,tries:0,answers:0,busy:false,ended:false};
+  T.turns.push({role:'assistant',content:T.mode==='ai'?'Hello! I am Pip, your English teacher. What is your name?':'Hello! I am Pip. Let’s talk. '+qs[0].q})}
+function renderTeacher(){
+  if(!T)newChat();
+  const v=view('<div class="row spread"><div><div class="eyebrow">Teacher Pip</div><h1>Let’s talk</h1></div><div class="row"><span class="pill" id="mode"></span><button class="btn small" id="fin"></button></div></div>'+
+   '<div class="card stack" style="gap:14px"><div class="chat" id="log" aria-live="polite"></div>'+
+   '<textarea id="msg" rows="2" placeholder="Write your answer in English" aria-label="Your message"></textarea>'+
+   '<div class="row"><button class="btn" id="tm" aria-label="Speak your answer">'+IC.mic+' Speak</button><button class="btn primary big" id="send" style="flex:1">Send</button></div>'+
+   '<div class="muted" id="tn" style="font-size:.9rem" hidden></div></div>');
+  const log=$('#log',v),msg=$('#msg',v);
+  const draw=()=>{log.innerHTML=T.turns.map((m,i)=>m.role==='assistant'
+    ?'<div class="msg">'+pip('happy','mini')+'<div class="b">'+esc(m.content)+' <button class="btn small" data-say="'+esc(m.content)+'" aria-label="Hear this message">'+IC.speaker+'</button></div></div>'
+    :'<div class="msg me"><div class="b">'+esc(m.content)+'</div></div>').join('');
+    $('#mode',v).textContent=T.mode==='ai'?'AI teacher':'Offline teacher';
+    const f=$('#fin',v);f.textContent=T.ended||T.answers>=4?'Finish chat (+XP)':'New chat';f.className='btn small'+(T.ended||T.answers>=4?' yellow':'');
+    log.scrollTop=log.scrollHeight};
+  draw();
+  const setLast=t=>{T.turns[T.turns.length-1].content=t;draw()};
+  const send=async()=>{const text=msg.value.trim();if(!text||T.busy||T.ended&&T.mode==='local')return;
+    T.busy=true;msg.value='';T.turns.push({role:'user',content:text});T.answers++;sfx('tap');
+    $('#send',v).disabled=true;
+    let handled=false;
+    if(T.mode==='ai'){T.turns.push({role:'assistant',content:'Pip is thinking…'});draw();
+      try{await AI.fn([{role:'user',content:TEACHER_RULES},...T.turns.slice(0,-1).slice(-13)],{cache:false,modelTier:'quick',onText:({text})=>setLast(text)});handled=true}
+      catch(e){if(aiOff(e)){AI.state='off';T.mode='local';T.turns.pop();T.qi=0;handled=true;$('#tn',v).hidden=false;$('#tn',v).textContent='The AI teacher is not available, so Pip is using the offline teacher.';
+          T.turns.push({role:'assistant',content:'Nice to meet you! Let’s practice. '+T.qs[0].q})}
+        else{T.turns.pop();T.turns.pop();T.answers--;msg.value=text;toast('Pip could not answer. Try again.');handled=true}}}
+    if(!handled){const q=T.qs[T.qi];const r=checkText(text,{minWords:3,model:q&&q.model});
+      const bad=r.changes.filter(c=>c.type!=='caps'&&c.type!=='punct');let reply;
+      if(bad.length&&T.tries<1){T.tries++;reply='Good try! Say it like this: “'+r.fixed+'”. '+(bad[0].why||'')+' Now you try again.'}
+      else{T.tries=0;T.qi++;const p=rnd(['Great!','Very good!','Nice answer!','Well done!']);
+        if(T.qi>=T.qs.length){T.ended=true;reply=p+' That is all for today. You did a good job!'}else reply=p+' '+T.qs[T.qi].q}
+      T.turns.push({role:'assistant',content:reply})}
+    T.busy=false;$('#send',v).disabled=false;draw();msg.focus()};
+  $('#send',v).onclick=send;
+  msg.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+  let rec=null;const tm=$('#tm',v);CLEAN.push(()=>{try{rec&&rec.stop()}catch(e){}});
+  tm.onclick=()=>{if(rec){try{rec.stop()}catch(e){}rec=null;return}const base=msg.value.trim();
+    rec=listen(t=>{msg.value=(base+' '+t).trim()},s=>{tm.classList.toggle('listening',s==='on');if(s==='off')rec=null});
+    if(!rec){const n=$('#tn',v);n.hidden=false;n.textContent='Tip: on a phone, use the microphone key on your keyboard to speak.'}};
+  $('#fin',v).onclick=()=>{const n=T.answers;
+    if(n>=3){if(n>=4){S.stats.chats++;save();bump('chat')}gain(Math.min(40,n*6),Math.min(15,n*2),'chat');sfx('done')}
+    T=null;renderTeacher()};
+  msg.focus()}
+
+/* ---------- Start ---------- */
+function init(){ensureDaily();renderHud();renderTabs();go('home');checkAch();initAI()}
+init();
+</script>
